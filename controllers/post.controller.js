@@ -14,6 +14,10 @@ postController.createPost = async (req, res) => {
             throw new Error("필수 입력 항목이 누락되었습니다"); 
         }
 
+        if (tags.length > 10) {
+            throw new Error("태그는 10개까지 입력 가능합니다")
+        }
+
         const newPost = new Post({
             author: userId,
             title,

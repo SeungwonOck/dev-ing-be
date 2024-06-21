@@ -6,6 +6,11 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const USER_DEFAULT_IMAGE = process.env.USER_DEFAULT_IMAGE;
 const formatDateTime = require('../utils/formatDateTime')
 
+const stackEnum = ['Python', 'C', 'C++', 'Java', 'C#', 'Javascript', 'TypeScript', 'R', 'Go', 'Object-C', ]
+
+const rankEnum = ["Entry", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Challenger"];
+
+
 const userSchema = Schema({
     userName: { type: String, required: true },
     userId: { type: String, default: function() { return this._id.toString(); }, unique: true},
@@ -14,8 +19,8 @@ const userSchema = Schema({
     profileImage: { type: String, default: USER_DEFAULT_IMAGE }, 
     description: {type: String, default: ""},
     gender: { type: String, required: true},
-    rank: { type: String, default: "bronze" },
-    specs: { type: String, default: "none" },
+    rank: { type: String, enum: rankEnum, default: "Entry" },
+    stacks: { type: String, enum: stackEnum, default: "none" },
     following: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     isDelete: { type: Boolean, default: false },
