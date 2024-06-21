@@ -64,7 +64,7 @@ userController.getAllUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
     try {
         const { userId } = req;
-        const { userName, email, specs, originalPassword, newPassword, profileImage } = req.body;
+        const { userName, specs, originalPassword, newPassword, profileImage } = req.body;
         const user = await User.findById(userId);
 
         if (!originalPassword) {
@@ -82,26 +82,14 @@ userController.updateUser = async (req, res) => {
         }
 
         user.userName = userName;
-
-        if (!email || email === '') {
-            throw new Error('이메일을 입력해주세요.')
-        }
-
-        user.email = email;
-
-        if (specs) {
-            user.specs = specs;
-        }
+        user.specs = specs;
+        user.profileImage = profileImage;
 
         if (newPassword) {
             // 비밀번호 해시 처리
             const salt = bcrypt.genSaltSync(10);
             const hash = await bcrypt.hash(newPassword, salt);
             user.password = hash;
-        }
-
-        if (profileImage) {
-            user.profileImage = profileImage;
         }
 
         await user.save();
