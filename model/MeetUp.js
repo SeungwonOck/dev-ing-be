@@ -1,0 +1,33 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const formatDateTime = require("../utils/formatDateTime");
+const User = require("./User");
+
+const meetUpSchema = Schema({
+    organizer: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    date: { type: Date, required: true },
+    category: [{ type: String, required: true }],
+    image: { type: String, required: true },
+    participants: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+    maxParticipants: { type: Number, required: true },
+    currentParticipants: { type: Number },
+    location: { type: String },
+    isDelete: { type: Boolean, default: false },
+    createAt: { type: Date, default: Date.now },
+});
+
+meetUpSchema.methods.toJSON = function () {
+    const obj = this.toObject();
+    delete obj.updateAt;
+    delete obj.__v;
+    obj.createAt = formatDateTime(obj.createAt);
+    obj.date = formatDateTime(obj.date);
+    obj.currentParticipants = obj.maxParticipants - obj.participants.length;
+    return obj;
+};
+
+const MeetUp = mongoose.model("MeetUp", meetUpSchema);
+
+module.exports = MeetUp;
