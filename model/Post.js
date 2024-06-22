@@ -28,7 +28,9 @@ postSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.updateAt;
     delete obj.__v;
-    obj.createAt = formatDateTime(obj.createAt);
+    obj.comments.map((comment) => {
+        comment.createAt = formatDateTime(comment.createAt)
+    })
     return obj;
 };
 
