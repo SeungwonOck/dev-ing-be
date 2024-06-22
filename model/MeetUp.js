@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const formatDateTime = require("../utils/formatDateTime");
 const User = require("./User");
+require("dotenv").config();
+const MEETUP_DEFAULT_IMAGE = process.env.MEETUP_DEFAULT_IMAGE;
 
 const meetUpSchema = Schema({
     organizer: { type: mongoose.Types.ObjectId, ref: "User", required: true },
@@ -9,7 +11,7 @@ const meetUpSchema = Schema({
     description: { type: String, required: true },
     date: { type: Date, required: true },
     category: [{ type: String, required: true }],
-    image: { type: String, required: true },
+    image: { type: String, required: true, default: MEETUP_DEFAULT_IMAGE },
     participants: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     maxParticipants: { type: Number, required: true },
     currentParticipants: { type: Number },

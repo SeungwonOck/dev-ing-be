@@ -6,5 +6,6 @@ const meetUpController = require("../controllers/meetUpController");
 
 router.post("/", authController.authenticate, meetUpController.createMeetUp);
 router.get("/:id", meetUpController.getMeetUp);
+router.put("/:id", meetUpController.updateMeetUp);
 
 module.exports = router;
