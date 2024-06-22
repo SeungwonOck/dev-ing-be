@@ -4,38 +4,63 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const USER_DEFAULT_IMAGE = process.env.USER_DEFAULT_IMAGE;
-const formatDateTime = require('../utils/formatDateTime')
+const formatDateTime = require("../utils/formatDateTime");
 
-const stackEnum = ['Python', 'C', 'C++', 'Java', 'C#', 'Javascript', 'TypeScript', 'R', 'Go', 'Object-C', ]
+const stackEnum = [
+    "Python",
+    "C",
+    "C++",
+    "Java",
+    "C#",
+    "Javascript",
+    "TypeScript",
+    "R",
+    "Go",
+    "Object-C",
+];
 
-const rankEnum = ["Entry", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Challenger"];
-
+const rankEnum = [
+    "Entry",
+    "Bronze",
+    "Silver",
+    "Gold",
+    "Platinum",
+    "Diamond",
+    "Master",
+    "Challenger",
+];
 
 const userSchema = Schema({
     userName: { type: String, required: true },
-    userId: { type: String, default: function() { return this._id.toString(); }, unique: true},
+    userId: {
+        type: String,
+        default: function () {
+            return this._id.toString();
+        },
+        unique: true,
+    },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    profileImage: { type: String, default: USER_DEFAULT_IMAGE }, 
-    description: {type: String, default: ""},
-    gender: { type: String, required: true},
+    profileImage: { type: String, default: USER_DEFAULT_IMAGE },
+    description: { type: String, default: "" },
+    gender: { type: String, required: true },
     rank: { type: String, enum: rankEnum, default: "Entry" },
     stacks: { type: String, enum: stackEnum, default: "none" },
     following: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     isDelete: { type: Boolean, default: false },
     isBlock: { type: Boolean, default: false },
-    level: {type: String, default: 'user'},
-    report: {type: Number, default: 0},
+    level: { type: String, default: "user" },
+    report: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
 });
 
 userSchema.methods.toJSON = function () {
-    const obj = this._doc;
+    const obj = this.toObject();
     delete obj.password;
     delete obj.updateAt;
     delete obj.__v;
-    obj.createAt = formatDateTime(obj.createAt) // createAt 포맷팅
+    obj.createAt = formatDateTime(obj.createAt); // createAt 포맷팅
     return obj;
 };
 

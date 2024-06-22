@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const formatDateTime = require("../utils/formatDateTime");
 const Schema = mongoose.Schema;
-const commentSchema = require('./Comment')
+const commentSchema = require("./Comment");
 
 const postSchema = Schema({
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     title: { type: String, required: true },
-    content: { type: String, required: true }, 
+    content: { type: String, required: true },
     image: { type: String },
     tags: [{ type: String }],
     userLikes: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],

@@ -10,7 +10,7 @@ const commentSchema = Schema({
 });
 
 commentSchema.methods.toJSON = function () {
-    const obj = this._doc;
+    const obj = this.toObject();
     delete obj.updateAt;
     delete obj.__v;
     obj.createAt = formatDateTime(obj.createAt);

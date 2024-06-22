@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const postController = {};
 const Post = require("../model/Post");
 const formatDateTime = require("../utils/formatDateTime");
-const convertToObjectId = require("../utils/convertToObjectId");
 
 postController.createPost = async (req, res) => {
     try {
@@ -90,17 +89,36 @@ postController.deletePost = async (req, res) => {
 
 postController.getAllPost = async (req, res) => {
     try {
-        const allPost = await Post.find({ isDelete: false }).populate("author")
-        .populate({
-            path: "comments.author",
-            model: "User"
-        });;
+        const { tag } = req.query;
 
-        if (!allPost.length) {
-            throw new Error("포스트가 존재하지 않습니다");
+        if (tag) {
+            const postsIncludesTag = await Post.find({
+                tags: { $in: [tag] },
+                isDelete: false,
+            }).populate("author");
+            if (!postsIncludesTag.length) {
+                throw new Error("해당 태그가 포함된 포스트가 없습니다");
+            }
+
+            return res
+                .status(200)
+                .json({
+                    status: "success",
+                    data: { allPost: postsIncludesTag },
+                });
+        } else {
+            const allPost = await Post.find({ isDelete: false }).populate(
+                "author"
+            );
+
+            if (!allPost.length) {
+                throw new Error("포스트가 존재하지 않습니다");
+            }
+
+            return res
+                .status(200)
+                .json({ status: "success", data: { allPost } });
         }
-
-        res.status(200).json({ status: "success", data: { allPost } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
