@@ -64,7 +64,7 @@ userController.getAllUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
     try {
         const { userId } = req;
-        const { userName, specs, originalPassword, newPassword, profileImage } = req.body;
+        const { userName, stacks, originalPassword, newPassword, profileImage, description } = req.body;
         const user = await User.findById(userId);
 
         if (!originalPassword) {
@@ -81,9 +81,15 @@ userController.updateUser = async (req, res) => {
             throw new Error('이름을 입력해주세요.')
         }
 
+        if(stacks.length !== 0) {
+            user.stacks = stacks;
+        } else {
+            user.stacks = ['none'];
+        }
+
         user.userName = userName;
-        user.specs = specs;
         user.profileImage = profileImage;
+        user.description = description;
 
         if (newPassword) {
             // 비밀번호 해시 처리
