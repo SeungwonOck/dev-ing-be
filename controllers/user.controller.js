@@ -154,4 +154,18 @@ userController.blockUser = async (req, res) => {
     }
 };
 
+userController.getUserByNickName = async (req, res) => {
+    try {
+        const { nickName } = req.params;
+        const uniqueUser = await User.findOne({ nickName })
+        if (!uniqueUser) {
+            throw new Error("사용자를 찾을 수 없습니다")
+        }
+
+        res.status(200).json({ status: "success", data: { uniqueUser } })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message})
+    }
+}
+
 module.exports = userController;

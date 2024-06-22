@@ -8,6 +8,7 @@ router.get("/", authController.authenticate, userController.getUser);
 router.post("/report", userController.reportUser);
 router.post("/block", authController.checkAdminPermission, userController.blockUser)
 router.get("/all", userController.getAllUser);
+router.get("/me/:nickName", userController.getUserByNickName);
 router.get("/:id", userController.getUserInfo);
 router.put("/", authController.authenticate, userController.updateUser);
 

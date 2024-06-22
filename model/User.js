@@ -32,6 +32,7 @@ const rankEnum = [
 
 const userSchema = Schema({
     userName: { type: String, required: true },
+    nickName: { type: String, unique: true},
     userId: {
         type: String,
         default: function () {
