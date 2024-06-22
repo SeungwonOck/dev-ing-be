@@ -165,19 +165,4 @@ postController.createComment = async (req, res) => {
     }
 };
 
-postController.getMyPost = async (req, res) => {
-    try {
-        const { userId } = req;
-        const myPost = await Post.find({ author: userId });
-
-        if (!myPost) throw new Error("포스트를 찾을 수 없습니다");
-
-        res.status(200).json({ status: "success", data: { myPost } });
-    } catch (error) {
-        res.status(400).json({ status: "fail", message: error.message });
-    }
-};
-
-postController.getUserPost;
-
 module.exports = postController;
