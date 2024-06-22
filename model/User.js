@@ -45,7 +45,7 @@ const userSchema = Schema({
     description: { type: String, default: "" },
     gender: { type: String, required: true },
     rank: { type: String, enum: rankEnum, default: "Entry" },
-    stacks: [{ type: String, default: "none" }],
+    stacks: [{ type: String, default: [] }],
     following: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     isDelete: { type: Boolean, default: false },
