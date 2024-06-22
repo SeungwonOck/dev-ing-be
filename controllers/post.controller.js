@@ -38,8 +38,9 @@ postController.getPost = async (req, res) => {
         const { id } = req.params;
         const post = await Post.findById(id).populate("author");
 
-        if (!post || post.isDelete)
+        if (!post || post.isDelete) {
             throw new Error("포스트가 존재하지 않습니다");
+        }
 
         res.status(200).json({ status: "success", data: { post } });
     } catch (error) {
@@ -163,5 +164,20 @@ postController.createComment = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+postController.getMyPost = async (req, res) => {
+    try {
+        const { userId } = req;
+        const myPost = await Post.find({ author: userId });
+
+        if (!myPost) throw new Error("포스트를 찾을 수 없습니다");
+
+        res.status(200).json({ status: "success", data: { myPost } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+postController.getUserPost;
 
 module.exports = postController;
