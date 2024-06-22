@@ -38,7 +38,8 @@ postController.getPost = async (req, res) => {
         const { id } = req.params;
         const post = await Post.findById(id).populate("author");
 
-        if (!post) throw new Error("포스트가 존재하지 않습니다");
+        if (!post || post.isDelete)
+            throw new Error("포스트가 존재하지 않습니다");
 
         res.status(200).json({ status: "success", data: { post } });
     } catch (error) {

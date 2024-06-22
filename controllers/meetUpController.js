@@ -89,4 +89,20 @@ meetUpController.updateMeetUp = async (req, res) => {
     }
 };
 
+meetUpController.getAllMeetUp = async (req, res) => {
+    try {
+        const allMeetUp = await MeetUp.find({ isDelete: false }).populate(
+            "organizer"
+        );
+
+        if (allMeetUp.length === 0) {
+            throw new Error("meetUp이 존재하지 않습니다");
+        }
+
+        res.status(200).json({ status: "success", data: { allMeetUp } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
 module.exports = meetUpController;
