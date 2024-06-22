@@ -36,7 +36,12 @@ postController.createPost = async (req, res) => {
 postController.getPost = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id).populate("author");
+        const post = await Post.findById(id)
+            .populate("author")
+            .populate({
+                path: "comments",
+                populate: { path: "author", select: "name profileImage" },
+            });
 
         if (!post || post.isDelete) {
             throw new Error("포스트가 존재하지 않습니다");
@@ -95,30 +100,37 @@ postController.getAllPost = async (req, res) => {
         const { tag } = req.query;
 
         if (tag) {
-            const postsIncludesTag = await Post.find({
-                tags: { $in: [tag] },
-                isDelete: false,
-            }).populate("author");
+            const postsIncludesTag = await Post.find({tags: { $in: [tag] },isDelete: false,})
+            .populate("author")
+            .populate({
+                path: "comments",
+                populate: {
+                    path: "author",
+                    select: "userName profileImage",
+                },
+            });;
+
             if (!postsIncludesTag.length) {
                 throw new Error("해당 태그가 포함된 포스트가 없습니다");
             }
 
-            return res.status(200).json({
-                status: "success",
-                data: { allPost: postsIncludesTag },
-            });
+            return res.status(200).json({status: "success",data: { allPost: postsIncludesTag }});
         } else {
-            const allPost = await Post.find({ isDelete: false }).populate(
-                "author"
-            );
+            const allPost = await Post.find({ isDelete: false })
+                .populate("author")
+                .populate({
+                    path: "comments",
+                    populate: {
+                        path: "author",
+                        select: "userName profileImage",
+                    },
+                });
 
             if (!allPost.length) {
                 throw new Error("포스트가 존재하지 않습니다");
             }
 
-            return res
-                .status(200)
-                .json({ status: "success", data: { allPost } });
+            return res.status(200).json({ status: "success", data: { allPost } });
         }
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
