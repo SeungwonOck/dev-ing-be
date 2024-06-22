@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
 const userController = {};
+const Post = require("../model/Post");
 
 userController.createUser = async (req, res) => {
     try {
@@ -68,17 +69,17 @@ userController.updateUser = async (req, res) => {
         const user = await User.findById(userId);
 
         if (!originalPassword) {
-            throw new Error('비밀번호를 입력해주세요.')
+            throw new Error("비밀번호를 입력해주세요.");
         }
 
-        const isMatch = await bcrypt.compare(originalPassword, user.password)
+        const isMatch = await bcrypt.compare(originalPassword, user.password);
 
         if (!isMatch) {
-            throw new Error('비밀번호가 틀렸습니다.')
+            throw new Error("비밀번호가 틀렸습니다.");
         }
 
-        if (!userName || userName === '') {
-            throw new Error('이름을 입력해주세요.')
+        if (!userName || userName === "") {
+            throw new Error("이름을 입력해주세요.");
         }
 
         if(stacks.length !== 0) {
@@ -100,10 +101,57 @@ userController.updateUser = async (req, res) => {
 
         await user.save();
 
-        res.status(200).json({status: 'success', data: { user } });
+        res.status(200).json({ status: "success", data: { user } });
     } catch (error) {
-        res.status(400).json({status: 'fail', message: error.message})
+        res.status(400).json({ status: "fail", message: error.message });
     }
-}
+};
+
+userController.getUserInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userPost = await Post.find({ author: id });
+        const user = await User.findById(id);
+
+        if (!userPost) throw new Error("포스트를 찾을 수 없습니다");
+
+        res.status(200).json({ status: "success", data: { user, userPost } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+userController.reportUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await User.findById(userId);
+
+        if (!user) throw new Error("유저를 찾을 수 없습니다");
+
+        user.report += 1;
+
+        await user.save();
+        res.status(200).json({ status: "success" });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+userController.blockUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await User.findById(userId);
+
+        if (!user) throw new Error("유저를 찾을 수 없습니다");
+
+        user.block = true;
+
+        await user.save();
+
+        res.status(200).json({ status: "success" });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
 
 module.exports = userController;
