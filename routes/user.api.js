@@ -9,6 +9,6 @@ router.post("/report", userController.reportUser);
 router.post("/block", authController.checkAdminPermission, userController.blockUser)
 router.get("/all", userController.getAllUser);
 router.get("/:id", userController.getUserInfo);
-router.put("/:id", authController.authenticate, userController.updateUser);
+router.put("/", authController.authenticate, userController.updateUser);
 
 module.exports = router;
