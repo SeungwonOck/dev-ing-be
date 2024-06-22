@@ -51,11 +51,12 @@ postController.updatePost = async (req, res) => {
         const { id } = req.params;
         const { title, content, image, tags } = req.body;
 
-        const updateData = {};
-        if (title) updateData.title = title;
-        if (content) updateData.content = content;
-        if (image) updateData.image = image;
-        if (tags) updateData.tags = tags;
+        const updateData = {
+            title,
+            content,
+            image,
+            tags,
+        };
 
         const updatedPost = await Post.findByIdAndUpdate(id, updateData, {
             new: true,
@@ -100,12 +101,10 @@ postController.getAllPost = async (req, res) => {
                 throw new Error("해당 태그가 포함된 포스트가 없습니다");
             }
 
-            return res
-                .status(200)
-                .json({
-                    status: "success",
-                    data: { allPost: postsIncludesTag },
-                });
+            return res.status(200).json({
+                status: "success",
+                data: { allPost: postsIncludesTag },
+            });
         } else {
             const allPost = await Post.find({ isDelete: false }).populate(
                 "author"
