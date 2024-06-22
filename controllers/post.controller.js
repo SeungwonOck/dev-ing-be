@@ -40,7 +40,7 @@ postController.getPost = async (req, res) => {
             .populate("author")
             .populate({
                 path: "comments",
-                populate: { path: "author", select: "name profileImage" },
+                populate: { path: "author", select: "userName profileImage" },
             });
 
         if (!post || post.isDelete) {
