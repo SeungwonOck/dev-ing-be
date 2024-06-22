@@ -10,4 +10,6 @@ router.delete("/:id", postController.deletePost);
 router.put("/:id", postController.updatePost);
 router.post("/like", authController.authenticate, postController.incrementLikesAndAddUser)
 
+router.post('/comment', authController.authenticate, postController.createComment)
+
 module.exports = router;

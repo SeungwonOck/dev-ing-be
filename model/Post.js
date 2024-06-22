@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const formatDateTime = require("../utils/formatDateTime");
 const Schema = mongoose.Schema;
+const commentSchema = require('./Comment')
 
 const postSchema = Schema({
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -11,6 +12,7 @@ const postSchema = Schema({
     userLikes: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     likes: { type: Number, default: 0 },
     isDelete: { type: Boolean, default: false },
+    comments: [commentSchema],
     createAt: { type: Date, default: Date.now },
 });
 
