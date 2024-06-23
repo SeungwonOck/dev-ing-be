@@ -72,6 +72,19 @@ userSchema.methods.generateToken = async function () {
     return token;
 };
 
+userSchema.methods.follow = async function (userId) {
+    if (!this.following.includes(userId)) {
+        this.following.push(userId);
+        await this.save();
+    }
+}
+
+userSchema.methods.unfollow = async function (userId) {
+    this.following = this.following.filter(
+        (followingId) => followingId.toString() !== userId.toString())
+    await this.save();
+}
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
