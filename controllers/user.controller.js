@@ -18,6 +18,12 @@ userController.createUser = async (req, res) => {
             throw new Error("이미 존재하는 이메일입니다");
         }
 
+        //닉네임 중복 확인
+        const existingNickName = await User.findOne({ nickName });
+        if (existingNickName) {
+            throw new Error("이미 존재하는 닉네임입니다");
+        }
+
         // 비밀번호 해시 처리
         const salt = bcrypt.genSaltSync(10);
         const hash = await bcrypt.hash(password, salt);
