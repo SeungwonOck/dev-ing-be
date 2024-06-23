@@ -2,6 +2,7 @@ const MeetUp = require("../model/MeetUp");
 const meetUpController = {};
 const parseDate = require("../utils/parseDate");
 const formatDateTime = require("../utils/formatDateTime");
+const User = require("../model/User");
 
 meetUpController.createMeetUp = async (req, res) => {
     try {
@@ -127,11 +128,16 @@ meetUpController.joinMeetUp = async (req, res) => {
         const { userId } = req;
         const { meetUpId } = req.body;
 
-        const meetUp = await MeetUp.findById(meetUpId);
+        const meetUp = await MeetUp.findById(meetUpId).populate("organizer");
 
         if (!meetUp) {
             throw new Error("MeetUp이 존재하지 않습니다");
         }
+
+        if (meetUp.organizer === userId) {
+            throw new Error("자신의 모임에는 참여할 수 없습니다")
+        }
+
 
         if (meetUp.participants.length >= meetUp.maxParticipants) {
             throw new Error("참가 인원이 가득 찼습니다");
