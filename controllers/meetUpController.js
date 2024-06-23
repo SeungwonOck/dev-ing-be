@@ -31,6 +31,7 @@ meetUpController.createMeetUp = async (req, res) => {
             location,
             maxParticipants,
         });
+        newMeetUp.participants.push(userId);
 
         await newMeetUp.save();
 
