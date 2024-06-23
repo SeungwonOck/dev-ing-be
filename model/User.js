@@ -71,6 +71,12 @@ userSchema.methods.generateToken = async function () {
     return token;
 };
 
+userSchema.methods.addReport = async function (userId) {
+    this.report += 1;
+    if (this.report >= 10) this.isBlock = true;
+    await this.save()
+}
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
