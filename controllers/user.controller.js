@@ -161,8 +161,8 @@ userController.getUserByNickName = async (req, res) => {
         if (!uniqueUser) {
             throw new Error("사용자를 찾을 수 없습니다")
         }
-
-        res.status(200).json({ status: "success", data: { uniqueUser } })
+        const uniqueUserPost = await Post.find({ author: uniqueUser._id })
+        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost } })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message})
     }
@@ -188,7 +188,7 @@ userController.followUser = async (req, res) => {
         targetUser.followers.push(userId);
         await targetUser.save();
         
-        res.status(200).json({status: "success", data: {user, targetUser}})
+        res.status(200).json({status: "success"})
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message})
     }
@@ -216,7 +216,7 @@ userController.unfollowUser = async (req, res) => {
         )
         await targetUser.save();
 
-        res.status(200).json({ status: "success", data: {user, targetUser}})
+        res.status(200).json({ status: "success"})
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message})
     }
