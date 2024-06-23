@@ -161,8 +161,62 @@ userController.getUserByNickName = async (req, res) => {
         if (!uniqueUser) {
             throw new Error("사용자를 찾을 수 없습니다")
         }
+        const uniqueUserPost = await Post.find({ author: uniqueUser._id })
+        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost } })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message})
+    }
+}
 
-        res.status(200).json({ status: "success", data: { uniqueUser } })
+userController.followUser = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { nickName } = req.params;
+
+        const user = await User.findById(userId);
+        const targetUser = await User.findOne({ nickName })
+        
+        if (!user || !targetUser) {
+            throw new Error("유저를 찾을 수 없습니다.");
+        }
+
+        if (user.following.includes(targetUser._id)) {
+            throw new Error("이미 팔로우 중입니다");
+        }
+
+        await user.follow(targetUser._id);
+        targetUser.followers.push(userId);
+        await targetUser.save();
+        
+        res.status(200).json({status: "success"})
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message})
+    }
+}
+
+userController.unfollowUser = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { nickName } = req.params;
+
+        const user = await User.findById(userId);
+        const targetUser = await User.findOne({ nickName })
+        
+        if (!user || !targetUser) {
+            throw new Error("유저를 찾을 수 없습니다")
+        }
+
+        if (!user.following.includes(targetUser._id)) {
+            throw new Error("팔로우 중이 아닙니다");
+        }
+
+        await user.unfollow(targetUser._id);
+        targetUser.followers = targetUser.followers.filter(
+            (followerId) => followerId.toString() !== userId.toString()
+        )
+        await targetUser.save();
+
+        res.status(200).json({ status: "success"})
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message})
     }
