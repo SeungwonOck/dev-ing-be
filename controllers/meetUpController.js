@@ -45,7 +45,7 @@ meetUpController.getMeetUp = async (req, res) => {
         const meetUp = await MeetUp.findById(id)
             .populate({
                 path: "organizer",
-                select: "userName profileImage",
+                select: "nickname profileImage",
             });
 
 
