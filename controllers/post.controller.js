@@ -97,10 +97,31 @@ postController.deletePost = async (req, res) => {
 
 postController.getAllPost = async (req, res) => {
     try {
-        const { tag } = req.query;
+        const { tag, keyword, type } = req.query;
+        let query = { isDelete: false };
 
         if (tag) {
-            const postsIncludesTag = await Post.find({tags: { $in: [tag] },isDelete: false,})
+            query.tags = { $in: [tag] };
+        }
+
+        if (keyword) {
+            const keywordRegex = new RegExp(keyword, 'i');
+            query.$or = [
+                { title: { $regex: keywordRegex } },
+                { content: { $regex: keywordRegex } }
+            ];
+        }
+
+        const sortOptions = {
+            comments: { sortBy: { commentCount: -1 } },
+            popularity: { sortBy: { likes: -1 } },
+            default: { sortBy: { createAt: -1 } } // 기본적으로 최신순으로 정렬
+        };
+
+        const { sortBy } = sortOptions[type] || sortOptions.default;
+
+        const allPost = await Post.find(query)
+            .sort(sortBy)
             .populate("author")
             .populate({
                 path: "comments",
@@ -108,30 +129,13 @@ postController.getAllPost = async (req, res) => {
                     path: "author",
                     select: "userName profileImage",
                 },
-            });;
+            });
 
-            if (!postsIncludesTag.length) {
-                throw new Error("해당 태그가 포함된 포스트가 없습니다");
-            }
-
-            return res.status(200).json({status: "success",data: { allPost: postsIncludesTag }});
-        } else {
-            const allPost = await Post.find({ isDelete: false })
-                .populate("author")
-                .populate({
-                    path: "comments",
-                    populate: {
-                        path: "author",
-                        select: "userName profileImage",
-                    },
-                });
-
-            if (!allPost.length) {
-                throw new Error("포스트가 존재하지 않습니다");
-            }
-
-            return res.status(200).json({ status: "success", data: { allPost } });
+        if (!allPost.length) {
+            throw new Error("포스트가 존재하지 않습니다");
         }
+
+        return res.status(200).json({ status: "success", data: { allPost } })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
@@ -168,6 +172,7 @@ postController.createComment = async (req, res) => {
             content: content,
         };
         post.comments.push(newComment);
+        post.commentCount = post.comments.length;
 
         await post.save();
 
