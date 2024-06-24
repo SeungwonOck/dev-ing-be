@@ -48,7 +48,11 @@ userController.createUser = async (req, res) => {
 userController.getUser = async (req, res) => {
     try {
         const { userId } = req;
-        const user = await User.findById(userId);
+        const user = await User.findById(userId)
+            .populate({
+                path: 'scrap',
+                populate: { path: 'post', select: 'title author image', populate: { path: 'author', select: 'nickName' } }
+            });
 
         if (!user) {
             throw new Error("사용자를 찾을 수 없습니다.");
