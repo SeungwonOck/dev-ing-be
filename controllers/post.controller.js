@@ -67,7 +67,7 @@ postController.updatePost = async (req, res) => {
 
         const updatedPost = await Post.findByIdAndUpdate(id, updateData, {
             new: true,
-        }).populate();
+        });
 
         if (!updatedPost) {
             throw new Error("포스트 수정을 실패했습니다");
@@ -105,17 +105,17 @@ postController.getAllPost = async (req, res) => {
         }
 
         if (keyword) {
-            const keywordRegex = new RegExp(keyword, 'i');
+            const keywordRegex = new RegExp(keyword, "i");
             query.$or = [
                 { title: { $regex: keywordRegex } },
-                { content: { $regex: keywordRegex } }
+                { content: { $regex: keywordRegex } },
             ];
         }
 
         const sortOptions = {
             comments: { sortBy: { commentCount: -1 } },
             popularity: { sortBy: { likes: -1 } },
-            default: { sortBy: { createAt: -1 } } // 기본적으로 최신순으로 정렬
+            default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
         };
 
         const { sortBy } = sortOptions[type] || sortOptions.default;
@@ -135,7 +135,7 @@ postController.getAllPost = async (req, res) => {
             throw new Error("포스트가 존재하지 않습니다");
         }
 
-        return res.status(200).json({ status: "success", data: { allPost } })
+        return res.status(200).json({ status: "success", data: { allPost } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
@@ -169,7 +169,7 @@ postController.createComment = async (req, res) => {
 
         const newComment = {
             author: userId,
-            content: content,
+            content,
         };
         post.comments.push(newComment);
         post.commentCount = post.comments.length;

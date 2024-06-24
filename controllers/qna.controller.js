@@ -93,4 +93,69 @@ qnaController.deleteQnA = async (req, res) => {
     }
 };
 
+qnaController.createAnswer = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { qnaId, content, image } = req.body;
+
+        const qna = await QnA.findById(qnaId);
+
+        if (!qna) throw new Error("포스트가 존재하지 않습니다");
+
+        const newAnswer = {
+            author: userId,
+            content,
+            image,
+        };
+        qna.answers.push(newAnswer);
+        qna.answerCount = qna.answers.length;
+
+        await qna.save();
+        res.status(200).json({ status: "success", data: { newAnswer } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+qnaController.updateAnswer = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { content, image } = req.body;
+        const { qnaId, answerId } = req.params;
+
+        // 구조 분해 할당을 통해 업데이트할 데이터 정의
+        const updateData = {
+            content,
+            image,
+            isUpdated: true,
+        };
+
+        // QnA ID로 해당 QnA 문서를 찾음
+        const qna = await QnA.findById(qnaId);
+
+        // QnA가 존재하지 않거나 삭제된 상태라면 에러
+        if (!qna || qna.isDelete) {
+            throw new Error("해당 QnA가 존재하지 않습니다");
+        }
+
+        // QnA에서 해당 댓글을 찾음
+        const answer = qna.answers.id(answerId);
+
+        // 댓글의 작성자와 현재 유저가 일치하지 않으면 권한 없음 에러
+        if (answer.author.toString() !== userId) {
+            throw new Error("댓글 수정 권한이 없습니다");
+        }
+
+        if (!qna) {
+            throw new Error("댓글 수정을 실패했습니다");
+        }
+
+        answer.set(updateData);
+
+        res.status(200).json({ status: "success", data: { qna } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
 module.exports = qnaController;
