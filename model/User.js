@@ -32,7 +32,7 @@ const rankEnum = [
 
 const userSchema = Schema({
     userName: { type: String, required: true },
-    nickName: { type: String, unique: true},
+    nickName: { type: String, unique: true },
     userId: {
         type: String,
         default: function () {
@@ -77,19 +77,20 @@ userSchema.methods.follow = async function (userId) {
         this.following.push(userId);
         await this.save();
     }
-}
+};
 
 userSchema.methods.unfollow = async function (userId) {
     this.following = this.following.filter(
-        (followingId) => followingId.toString() !== userId.toString())
+        (followingId) => followingId.toString() !== userId.toString()
+    );
     await this.save();
-}
+};
 
 userSchema.methods.addReport = async function (userId) {
     this.report += 1;
     if (this.report >= 10) this.isBlock = true;
-    await this.save()
-}
+    await this.save();
+};
 
 const User = mongoose.model("User", userSchema);
 
