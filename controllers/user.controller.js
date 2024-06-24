@@ -5,10 +5,10 @@ const Post = require("../model/Post");
 
 userController.createUser = async (req, res) => {
     try {
-        const { email, userName, password, gender } = req.body;
+        const { email, userName, password, gender, nickName } = req.body;
 
         // 데이터 검증
-        if (!userName || !email || !password || !gender) {
+        if (!userName || !email || !password || !gender || !nickName) {
             throw new Error("필수 입력 항목이 누락되었습니다");
         }
 
@@ -16,6 +16,12 @@ userController.createUser = async (req, res) => {
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             throw new Error("이미 존재하는 이메일입니다");
+        }
+
+        //닉네임 중복 확인
+        const existingNickName = await User.findOne({ nickName });
+        if (existingNickName) {
+            throw new Error("이미 존재하는 닉네임입니다");
         }
 
         // 비밀번호 해시 처리
@@ -28,6 +34,7 @@ userController.createUser = async (req, res) => {
             email,
             password: hash,
             gender,
+            nickName
         });
 
         await newUser.save();
@@ -82,7 +89,7 @@ userController.updateUser = async (req, res) => {
             throw new Error("이름을 입력해주세요.");
         }
 
-        if(stacks.length !== 0) {
+        if (stacks.length !== 0) {
             user.stacks = stacks;
         } else {
             user.stacks = ['none'];
@@ -164,7 +171,7 @@ userController.getUserByNickName = async (req, res) => {
         const uniqueUserPost = await Post.find({ author: uniqueUser._id })
         res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost } })
     } catch (error) {
-        res.status(400).json({ status: "fail", message: error.message})
+        res.status(400).json({ status: "fail", message: error.message })
     }
 }
 
@@ -175,7 +182,7 @@ userController.followUser = async (req, res) => {
 
         const user = await User.findById(userId);
         const targetUser = await User.findOne({ nickName })
-        
+
         if (!user || !targetUser) {
             throw new Error("유저를 찾을 수 없습니다.");
         }
@@ -187,10 +194,10 @@ userController.followUser = async (req, res) => {
         await user.follow(targetUser._id);
         targetUser.followers.push(userId);
         await targetUser.save();
-        
-        res.status(200).json({status: "success"})
+
+        res.status(200).json({ status: "success" })
     } catch (error) {
-        res.status(400).json({ status: "fail", message: error.message})
+        res.status(400).json({ status: "fail", message: error.message })
     }
 }
 
@@ -201,7 +208,7 @@ userController.unfollowUser = async (req, res) => {
 
         const user = await User.findById(userId);
         const targetUser = await User.findOne({ nickName })
-        
+
         if (!user || !targetUser) {
             throw new Error("유저를 찾을 수 없습니다")
         }
@@ -216,9 +223,9 @@ userController.unfollowUser = async (req, res) => {
         )
         await targetUser.save();
 
-        res.status(200).json({ status: "success"})
+        res.status(200).json({ status: "success" })
     } catch (error) {
-        res.status(400).json({ status: "fail", message: error.message})
+        res.status(400).json({ status: "fail", message: error.message })
     }
 }
 
