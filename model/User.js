@@ -32,6 +32,7 @@ const rankEnum = [
 
 const userSchema = Schema({
     userName: { type: String, required: true },
+    nickName: { type: String, unique: true},
     userId: {
         type: String,
         default: function () {
@@ -70,6 +71,19 @@ userSchema.methods.generateToken = async function () {
     });
     return token;
 };
+
+userSchema.methods.follow = async function (userId) {
+    if (!this.following.includes(userId)) {
+        this.following.push(userId);
+        await this.save();
+    }
+}
+
+userSchema.methods.unfollow = async function (userId) {
+    this.following = this.following.filter(
+        (followingId) => followingId.toString() !== userId.toString())
+    await this.save();
+}
 
 userSchema.methods.addReport = async function (userId) {
     this.report += 1;

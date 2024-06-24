@@ -31,6 +31,7 @@ meetUpController.createMeetUp = async (req, res) => {
             location,
             maxParticipants,
         });
+        newMeetUp.participants.push(userId);
 
         await newMeetUp.save();
 
@@ -43,7 +44,12 @@ meetUpController.createMeetUp = async (req, res) => {
 meetUpController.getMeetUp = async (req, res) => {
     try {
         const { id } = req.params;
-        const meetUp = await MeetUp.findById(id);
+        const meetUp = await MeetUp.findById(id)
+            .populate({
+                path: "organizer",
+                select: "nickName profileImage",
+            });
+
 
         if (!meetUp) throw new Error("meetUp 찾기를 실패했습니다");
 

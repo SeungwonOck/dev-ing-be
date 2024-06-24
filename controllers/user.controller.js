@@ -5,10 +5,10 @@ const Post = require("../model/Post");
 
 userController.createUser = async (req, res) => {
     try {
-        const { email, userName, password, gender } = req.body;
+        const { email, userName, password, gender, nickName } = req.body;
 
         // 데이터 검증
-        if (!userName || !email || !password || !gender) {
+        if (!userName || !email || !password || !gender || !nickName) {
             throw new Error("필수 입력 항목이 누락되었습니다");
         }
 
@@ -16,6 +16,12 @@ userController.createUser = async (req, res) => {
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             throw new Error("이미 존재하는 이메일입니다");
+        }
+
+        //닉네임 중복 확인
+        const existingNickName = await User.findOne({ nickName });
+        if (existingNickName) {
+            throw new Error("이미 존재하는 닉네임입니다");
         }
 
         // 비밀번호 해시 처리
@@ -28,6 +34,7 @@ userController.createUser = async (req, res) => {
             email,
             password: hash,
             gender,
+            nickName
         });
 
         await newUser.save();
@@ -65,8 +72,7 @@ userController.getAllUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
     try {
         const { userId } = req;
-        const { userName, specs, originalPassword, newPassword, profileImage } =
-            req.body;
+        const { userName, stacks, originalPassword, newPassword, profileImage, description } = req.body;
         const user = await User.findById(userId);
 
         if (!originalPassword) {
@@ -83,9 +89,15 @@ userController.updateUser = async (req, res) => {
             throw new Error("이름을 입력해주세요.");
         }
 
+        if (stacks.length !== 0) {
+            user.stacks = stacks;
+        } else {
+            user.stacks = ['none'];
+        }
+
         user.userName = userName;
-        user.specs = specs;
         user.profileImage = profileImage;
+        user.description = description;
 
         if (newPassword) {
             // 비밀번호 해시 처리
@@ -144,5 +156,73 @@ userController.blockUser = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+userController.getUserByNickName = async (req, res) => {
+    try {
+        const { nickName } = req.params;
+        const uniqueUser = await User.findOne({ nickName })
+        if (!uniqueUser) {
+            throw new Error("사용자를 찾을 수 없습니다")
+        }
+        const uniqueUserPost = await Post.find({ author: uniqueUser._id })
+        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost } })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
+
+userController.followUser = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { nickName } = req.params;
+
+        const user = await User.findById(userId);
+        const targetUser = await User.findOne({ nickName })
+
+        if (!user || !targetUser) {
+            throw new Error("유저를 찾을 수 없습니다.");
+        }
+
+        if (user.following.includes(targetUser._id)) {
+            throw new Error("이미 팔로우 중입니다");
+        }
+
+        await user.follow(targetUser._id);
+        targetUser.followers.push(userId);
+        await targetUser.save();
+
+        res.status(200).json({ status: "success" })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
+
+userController.unfollowUser = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { nickName } = req.params;
+
+        const user = await User.findById(userId);
+        const targetUser = await User.findOne({ nickName })
+
+        if (!user || !targetUser) {
+            throw new Error("유저를 찾을 수 없습니다")
+        }
+
+        if (!user.following.includes(targetUser._id)) {
+            throw new Error("팔로우 중이 아닙니다");
+        }
+
+        await user.unfollow(targetUser._id);
+        targetUser.followers = targetUser.followers.filter(
+            (followerId) => followerId.toString() !== userId.toString()
+        )
+        await targetUser.save();
+
+        res.status(200).json({ status: "success" })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
 
 module.exports = userController;
