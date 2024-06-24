@@ -1,5 +1,6 @@
 const QnA = require("../model/QnA");
 const { getUserByNickName } = require("./user.controller");
+const mongoose = require("mongoose");
 
 const qnaController = {};
 
@@ -135,24 +136,58 @@ qnaController.updateAnswer = async (req, res) => {
 
         // QnA가 존재하지 않거나 삭제된 상태라면 에러
         if (!qna || qna.isDelete) {
-            throw new Error("해당 QnA가 존재하지 않습니다");
+            throw new Error("존재하지 않거나 삭제된 질문입니다");
         }
 
         // QnA에서 해당 댓글을 찾음
         const answer = qna.answers.id(answerId);
 
-        // 댓글의 작성자와 현재 유저가 일치하지 않으면 권한 없음 에러
-        if (answer.author.toString() !== userId) {
-            throw new Error("댓글 수정 권한이 없습니다");
+        if (!answer || answer.isDelete) {
+            throw new Error("존재하지 않거나 삭제된 답변입니다");
         }
 
-        if (!qna) {
-            throw new Error("댓글 수정을 실패했습니다");
+        if (answer.author.toString() !== userId) {
+            throw new Error("수정 권한이 없습니다");
         }
 
         answer.set(updateData);
 
         res.status(200).json({ status: "success", data: { qna } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+qnaController.deleteAnswer = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { qnaId, answerId } = req.params;
+
+        const qna = await QnA.findById(qnaId);
+
+        if (!qna) {
+            throw new Error("해당 질문이 존재하지 않습니다");
+        }
+
+        const answer = qna.answers.id(answerId);
+
+        if (!answer) {
+            throw new Error("해당 답변이 존재하지 않습니다");
+        }
+
+        if (answer.author.toString() !== userId) {
+            throw new Error("삭제 권한이 없습니다");
+        }
+
+        // 답변을 삭제 상태로 표시
+        answer.isDelete = true;
+
+        await qna.save();
+
+        res.status(200).json({
+            status: "success",
+            message: "댓글 삭제를 성공했습니다",
+        });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
