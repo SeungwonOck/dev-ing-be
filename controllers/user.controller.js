@@ -169,7 +169,9 @@ userController.getUserByNickName = async (req, res) => {
             throw new Error("사용자를 찾을 수 없습니다")
         }
         const uniqueUserPost = await Post.find({ author: uniqueUser._id })
-        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost } })
+        const following = await User.find({ _id: { $in: uniqueUser.following } });
+        const followers = await User.find({ _id: { $in: uniqueUser.followers } });
+        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost, following, followers } })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }
