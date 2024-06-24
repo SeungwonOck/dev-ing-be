@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const postController = {};
 const Post = require("../model/Post");
 const formatDateTime = require("../utils/formatDateTime");
+const User = require("../model/User");
 
 postController.createPost = async (req, res) => {
     try {
@@ -40,7 +41,11 @@ postController.getPost = async (req, res) => {
             .populate("author")
             .populate({
                 path: "comments",
-                populate: { path: "author", select: "userName profileImage" },
+                populate: { path: "author", select: "nickName profileImage" },
+            })
+            .populate({
+                path: "userLikes",
+                select: "nickName profileImage",
             });
 
         if (!post || post.isDelete) {
@@ -97,7 +102,13 @@ postController.deletePost = async (req, res) => {
 
 postController.getAllPost = async (req, res) => {
     try {
-        const { tag, keyword, type } = req.query;
+        const { userId } = req;
+        const user = await User.findById(userId);
+
+        if (!user) throw new Error("사용자를 찾을 수 없습니다");
+
+        const { tag, keyword, type, isFollowing } = req.query;
+
         let query = { isDelete: false };
 
         if (tag) {
@@ -112,10 +123,16 @@ postController.getAllPost = async (req, res) => {
             ];
         }
 
+        if (isFollowing === 'true') {
+            query.author = { $in: user.following }; // 팔로우한 사용자의 게시물만 포함
+        }
+
         const sortOptions = {
             comments: { sortBy: { commentCount: -1 } },
             popularity: { sortBy: { likes: -1 } },
-            default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
+            scrap: { sortBy: { scrapCount: -1 } },
+            latest: { sortBy: { createAt: -1 } },
+            default: { sortBy: { createAt: -1 } } // 기본적으로 최신순으로 정렬
         };
 
         const { sortBy } = sortOptions[type] || sortOptions.default;
@@ -174,6 +191,37 @@ postController.createComment = async (req, res) => {
         post.comments.push(newComment);
         post.commentCount = post.comments.length;
 
+        await post.save();
+
+        res.status(200).json({ status: "success" });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+postController.addScrap = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { postId, isPrivate } = req.body;
+
+        const user = await User.findById(userId);
+
+        const post = await Post.findById(postId);
+        if (user && !post) throw new Error("포스트가 존재하지 않습니다");
+
+        if (user.scrap.some(i => i.post.equals(post._id))) {
+            throw new Error("이미 스크랩된 포스트입니다");
+        }
+
+        const newScrap = {
+            post: post,
+            isPrivate: isPrivate,
+        };
+
+        user.scrap.push(newScrap);
+        post.scrapCount += 1;
+
+        await user.save();
         await post.save();
 
         res.status(200).json({ status: "success" });
