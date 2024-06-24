@@ -5,7 +5,7 @@ const authController = require("../controllers/auth.controller");
 
 router.post("/", authController.authenticate, qnaController.createQnA);
 router.get("/:id", qnaController.getQnA);
-router.put("/:id");
-router.delete("/:id");
+router.put("/:id", qnaController.updateQnA);
+router.delete("/:id", qnaController.deleteQnA);
 
 module.exports = router;

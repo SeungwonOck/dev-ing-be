@@ -51,4 +51,46 @@ qnaController.getQnA = async (req, res) => {
     }
 };
 
+qnaController.updateQnA = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, content, image, tags } = req.body;
+
+        const updateData = {
+            title,
+            content,
+            image,
+            tags,
+        };
+
+        const updatedQnA = await QnA.findByIdAndUpdate(id, updateData, {
+            new: true,
+        });
+
+        if (!updatedQnA) {
+            throw new Error("QnA 수정을 실패했습니다");
+        }
+
+        res.status(200).json({ status: "success", data: { updatedQnA } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+qnaController.deleteQnA = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const qna = await QnA.findById(id);
+
+        if (!qna) throw new Error("포스트가 존재하지 않습니다");
+
+        qna.isDelete = true;
+        await qna.save();
+
+        res.status(200).json({ status: "success" });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
 module.exports = qnaController;
