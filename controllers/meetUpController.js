@@ -161,6 +161,11 @@ meetUpController.joinMeetUp = async (req, res) => {
 
         await meetUp.save();
 
+        await MeetUp.populate(meetUp, {
+            path: "participants",
+            select : "nickName profileImage",
+        });
+
         res.status(200).json({ status: "success", data: { meetUp } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
