@@ -22,6 +22,10 @@ postSchema.methods.addLike = async function (userId) {
         this.userLikes.push(userId);
         this.likes += 1;
         await this.save();
+    } else {
+        this.userLikes = this.userLikes.filter(id => id.toString() !== userId.toString());
+        this.likes -= 1;
+        await this.save();
     }
 };
 
@@ -29,6 +33,7 @@ postSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.updateAt;
     delete obj.__v;
+    obj.createAt = formatDateTime(obj.createAt)
     obj.comments.map((comment) => {
         comment.createAt = formatDateTime(comment.createAt)
     })
