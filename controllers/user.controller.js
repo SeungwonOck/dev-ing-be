@@ -135,13 +135,9 @@ userController.getUserInfo = async (req, res) => {
 userController.reportUser = async (req, res) => {
     try {
         const { userId } = req.body;
-        const user = await User.findById(userId);
 
-        if (!user) throw new Error("유저를 찾을 수 없습니다");
-
-        user.report += 1;
-
-        await user.save();
+        await addReport(userId)
+    
         res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });

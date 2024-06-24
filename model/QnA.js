@@ -1,0 +1,47 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const formatDateTime = require("../utils/formatDateTime");
+
+const answerSchema = new Schema({
+    author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true },
+    image: { type: String },
+    likes: { type: Number, default: 0 },
+    isUpdated: { type: Boolean, default: false },
+    isDelete: { type: Boolean, default: false },
+    createAt: { type: Date, default: Date.now },
+});
+
+const QnASchema = new Schema({
+    author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    tags: [{ type: String }],
+    answers: [answerSchema],
+    answerCount: { type: Number, default: 0 },
+    createAt: { type: Date, default: Date.now },
+    isDelete: { type: Boolean, default: false },
+});
+
+QnASchema.methods.toJSON = function () {
+    const obj = this.toObject();
+    delete obj.updateAt;
+    delete obj.__v;
+    obj.createAt = formatDateTime(obj.createAt);
+    obj.answers = obj.answers.map((answer) => {
+        answer.createAt = formatDateTime(answer.createAt);
+        return answer;
+    });
+    return obj;
+};
+
+answerSchema.methods.toJSON = function () {
+    const obj = this.toObject();
+    delete obj.updateAt;
+    delete obj.__v;
+    return obj;
+};
+
+const QnA = mongoose.model("QnA", QnASchema);
+
+module.exports = QnA;
