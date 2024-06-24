@@ -152,7 +152,10 @@ qnaController.updateAnswer = async (req, res) => {
 
         answer.set(updateData);
 
-        res.status(200).json({ status: "success", data: { qna } });
+        res.status(200).json({
+            status: "success",
+            message: "댓글 수정에 성공했습니다",
+        });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
