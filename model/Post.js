@@ -12,6 +12,7 @@ const postSchema = Schema({
     userLikes: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     likes: { type: Number, default: 0 },
     commentCount: { type: Number, default: 0 },
+    scrapCount: { type: Number, default: 0 },
     isDelete: { type: Boolean, default: false },
     comments: [commentSchema],
     createAt: { type: Date, default: Date.now },

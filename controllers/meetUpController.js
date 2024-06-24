@@ -45,10 +45,14 @@ meetUpController.getMeetUp = async (req, res) => {
     try {
         const { id } = req.params;
         const meetUp = await MeetUp.findById(id)
-            .populate({
+            .populate([{
                 path: "organizer",
                 select: "nickName profileImage",
-            });
+            },
+            {
+                path: "participants",
+                select: "nickName profileImage",
+            }]);
 
 
         if (!meetUp) throw new Error("meetUp 찾기를 실패했습니다");

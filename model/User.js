@@ -5,6 +5,7 @@ require("dotenv").config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const USER_DEFAULT_IMAGE = process.env.USER_DEFAULT_IMAGE;
 const formatDateTime = require("../utils/formatDateTime");
+const scrapSchema = require("./Scrap");
 
 const stackEnum = [
     "Python",
@@ -54,6 +55,7 @@ const userSchema = Schema({
     level: { type: String, default: "user" },
     report: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
+    scrap: [ scrapSchema ]
 });
 
 userSchema.methods.toJSON = function () {
