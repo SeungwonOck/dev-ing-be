@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const formatDateTime = require("../utils/formatDateTime");
 const Schema = mongoose.Schema;
 const commentSchema = require("./Comment");
+const getCommentCount = require("../utils/getCommentCount");
 
 const postSchema = Schema({
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -13,6 +14,7 @@ const postSchema = Schema({
     likes: { type: Number, default: 0 },
     commentCount: { type: Number, default: 0 },
     scrapCount: { type: Number, default: 0 },
+    isUpdated: { type: Boolean, default: false },
     isDelete: { type: Boolean, default: false },
     comments: [commentSchema],
     createAt: { type: Date, default: Date.now },
@@ -24,7 +26,9 @@ postSchema.methods.addLike = async function (userId) {
         this.likes += 1;
         await this.save();
     } else {
-        this.userLikes = this.userLikes.filter(id => id.toString() !== userId.toString());
+        this.userLikes = this.userLikes.filter(
+            (id) => id.toString() !== userId.toString()
+        );
         this.likes -= 1;
         await this.save();
     }
@@ -34,10 +38,11 @@ postSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.updateAt;
     delete obj.__v;
-    obj.createAt = formatDateTime(obj.createAt)
+    obj.commentCount = getCommentCount(obj.comments);
+    obj.createAt = formatDateTime(obj.createAt);
     obj.comments.map((comment) => {
-        comment.createAt = formatDateTime(comment.createAt)
-    })
+        comment.createAt = formatDateTime(comment.createAt);
+    });
     return obj;
 };
 

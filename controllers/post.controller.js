@@ -123,7 +123,7 @@ postController.getAllPost = async (req, res) => {
             ];
         }
 
-        if (isFollowing === 'true') {
+        if (isFollowing === "true") {
             query.author = { $in: user.following }; // 팔로우한 사용자의 게시물만 포함
         }
 
@@ -132,7 +132,7 @@ postController.getAllPost = async (req, res) => {
             popularity: { sortBy: { likes: -1 } },
             scrap: { sortBy: { scrapCount: -1 } },
             latest: { sortBy: { createAt: -1 } },
-            default: { sortBy: { createAt: -1 } } // 기본적으로 최신순으로 정렬
+            default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
         };
 
         const { sortBy } = sortOptions[type] || sortOptions.default;
@@ -193,7 +193,82 @@ postController.createComment = async (req, res) => {
 
         await post.save();
 
+        res.status(200).json({ status: "success", data: { post } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+postController.updateComment = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { content } = req.body;
+        const { postId, commentId } = req.params;
+
+        const updateData = {
+            content,
+            isUpdated: true,
+        };
+
+        const post = await Post.findById(postId);
+
+        if (!post || post.isDelete) {
+            throw new Error("존재하지 않거나 삭제된 포스트입니다");
+        }
+
+        const comment = post.comments.id(commentId);
+
+        if (!comment || comment.isDelete) {
+            throw new Error("존재하지 않거나 삭제된 답변입니다");
+        }
+
+        if (comment.author.toString() !== userId) {
+            throw new Error("수정 권한이 없습니다");
+        }
+
+        comment.set(updateData);
+
+        res.status(200).json({
+            status: "success",
+            message: "댓글 수정에 성공했습니다",
+        });
+
         res.status(200).json({ status: "success" });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+postController.deleteComment = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { postId, commentId } = req.params;
+
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            throw new Error("해당 질문이 존재하지 않습니다");
+        }
+
+        const comment = post.comments.id(commentId);
+
+        if (!comment) {
+            throw new Error("해당 답변이 존재하지 않습니다");
+        }
+
+        if (comment.author.toString() !== userId) {
+            throw new Error("삭제 권한이 없습니다");
+        }
+
+        // 답변을 삭제 상태로 표시
+        comment.isDelete = true;
+
+        await post.save();
+
+        res.status(200).json({
+            status: "success",
+            message: "댓글 삭제를 성공했습니다",
+        });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
@@ -209,7 +284,7 @@ postController.addScrap = async (req, res) => {
         const post = await Post.findById(postId);
         if (user && !post) throw new Error("포스트가 존재하지 않습니다");
 
-        if (user.scrap.some(i => i.post.equals(post._id))) {
+        if (user.scrap.some((i) => i.post.equals(post._id))) {
             throw new Error("이미 스크랩된 포스트입니다");
         }
 
