@@ -7,21 +7,16 @@ const qnaController = {};
 qnaController.createQnA = async (req, res) => {
     try {
         const { userId } = req;
-        const { title, content, tags } = req.body;
+        const { title, content } = req.body;
 
-        if (!title || !content || !tags) {
+        if (!title || !content) {
             throw new Error("필수 항목이 누락되었습니다");
-        }
-
-        if (tags.length > 10) {
-            throw new Error("태그는 10개까지 입력 가능합니다");
         }
 
         const newQnA = new QnA({
             author: userId,
             title,
             content,
-            tags,
         });
 
         await newQnA.save();
@@ -46,7 +41,25 @@ qnaController.getQnA = async (req, res) => {
             throw new Error("QnA가 존재하지 않습니다");
         }
 
+        //isDelete 댓글 필터링
+        qna.answers = qna.answers.filter((answer) => {
+            return !answer.isDelete;
+        });
+
         res.status(200).json({ status: "success", data: { qna } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+qnaController.getAllQnA = async (req, res) => {
+    try {
+        const allQnA = await QnA.find({ isDelete: false }).populate({
+            path: "author",
+            select: "userName profileImage",
+        });
+
+        res.status(200).json({ status: "success", data: { allQnA } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
@@ -191,6 +204,40 @@ qnaController.deleteAnswer = async (req, res) => {
             status: "success",
             message: "댓글 삭제를 성공했습니다",
         });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+qnaController.likesAnswer = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { qnaId, answerId } = req.params;
+
+        const qna = await QnA.findById(qnaId);
+
+        if (!qna) {
+            throw new Error("해당 질문이 존재하지 않습니다");
+        }
+
+        const answer = qna.answers.id(answerId);
+
+        if (!answer) {
+            throw new Error("해당 답변이 존재하지 않습니다");
+        }
+
+        if (answer.userLikes.includes(userId)) {
+            answer.likes -= 1;
+            answer.userLikes = answer.userLikes.filter(
+                (id) => id.toString() !== userId.toString()
+            );
+        } else {
+            answer.likes += 1;
+            answer.userLikes.push(userId);
+        }
+
+        await qna.save();
+        res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
