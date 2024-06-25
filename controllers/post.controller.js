@@ -38,10 +38,16 @@ postController.getPost = async (req, res) => {
     try {
         const { id } = req.params;
         const post = await Post.findById(id)
-            .populate("author")
+            .populate({
+                path: "author",
+                select: "nickName profileImage"
+            })
             .populate({
                 path: "comments",
-                populate: { path: "author", select: "nickName profileImage" },
+                populate: { 
+                    path: "author", 
+                    select: "nickName profileImage"
+                },
             })
             .populate({
                 path: "userLikes",
@@ -137,15 +143,11 @@ postController.getAllPost = async (req, res) => {
 
         const { sortBy } = sortOptions[type] || sortOptions.default;
 
-        const allPost = await Post.find(query)
+        const allPost = await Post.find(query, "-isDelete -isUpdated")
             .sort(sortBy)
-            .populate("author")
             .populate({
-                path: "comments",
-                populate: {
-                    path: "author",
-                    select: "userName profileImage",
-                },
+                path: "author",
+                select: "nickName profileImage"
             });
 
         if (!allPost.length) {
@@ -189,7 +191,6 @@ postController.createComment = async (req, res) => {
             content,
         };
         post.comments.push(newComment);
-        post.commentCount = post.comments.length;
 
         await post.save();
 
@@ -228,12 +229,12 @@ postController.updateComment = async (req, res) => {
 
         comment.set(updateData);
 
+        await post.save();
+
         res.status(200).json({
             status: "success",
             message: "댓글 수정에 성공했습니다",
         });
-
-        res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
