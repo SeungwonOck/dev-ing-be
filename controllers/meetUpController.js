@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const MeetUp = require("../model/MeetUp");
 const meetUpController = {};
 const parseDate = require("../utils/parseDate");
@@ -191,9 +192,7 @@ meetUpController.leaveMeetUp = async (req, res) => {
         if (!meetUp.participants.includes(userId)) {
             throw new Error("참가하지 않은 유저입니다");
         } else {
-            console.log(userId);
-            const newParticipants = meetUp.participants.filter(participant => participant !== userId)
-            console.log(newParticipants);
+            const newParticipants = meetUp.participants.filter(participant => participant.toString() !== userId)
             meetUp.participants = newParticipants;
         }
 
