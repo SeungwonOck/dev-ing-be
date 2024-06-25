@@ -103,13 +103,14 @@ meetUpController.updateMeetUp = async (req, res) => {
 
 meetUpController.getAllMeetUp = async (req, res) => {
     try {
-        const allMeetUp = await MeetUp.find({ isDelete: false }).populate(
-            "organizer"
-        );
+        const allMeetUp = await MeetUp.find({ isDelete: false }).populate({
+            path: "organizer",
+            select: "nickName profileImage"
+        });
 
-        if (allMeetUp.length === 0) {
-            throw new Error("meetUp이 존재하지 않습니다");
-        }
+        // if (allMeetUp.length === 0) {
+        //     throw new Error("meetUp이 존재하지 않습니다");
+        // }
 
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
@@ -160,6 +161,11 @@ meetUpController.joinMeetUp = async (req, res) => {
         }
 
         await meetUp.save();
+
+        await MeetUp.populate(meetUp, {
+            path: "participants",
+            select: "nickName profileImage",
+        });
 
         res.status(200).json({ status: "success", data: { meetUp } });
     } catch (error) {
