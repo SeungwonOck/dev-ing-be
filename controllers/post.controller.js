@@ -44,8 +44,8 @@ postController.getPost = async (req, res) => {
             })
             .populate({
                 path: "comments",
-                populate: { 
-                    path: "author", 
+                populate: {
+                    path: "author",
                     select: "nickName profileImage"
                 },
             })
