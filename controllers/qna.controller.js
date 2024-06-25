@@ -209,15 +209,6 @@ qnaController.deleteAnswer = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-// qnaController.likeAnswer = async (req, res) => {
-//     try {
-//         res.status(200).json({ status: "success" });
-//     } catch (error) {
-//         res.status(400).json({ status: "fail", message: error.message });
-//     }
-// };
-=======
 qnaController.likesAnswer = async (req, res) => {
     try {
         const { userId } = req;
@@ -251,6 +242,5 @@ qnaController.likesAnswer = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
->>>>>>> develop
 
 module.exports = qnaController;
