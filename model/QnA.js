@@ -8,6 +8,7 @@ const answerSchema = new Schema({
     content: { type: String, required: true },
     image: { type: String },
     likes: { type: Number, default: 0 },
+    userLikes: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     isUpdated: { type: Boolean, default: false },
     isDelete: { type: Boolean, default: false },
     createAt: { type: Date, default: Date.now },

@@ -196,4 +196,12 @@ qnaController.deleteAnswer = async (req, res) => {
     }
 };
 
+// qnaController.likeAnswer = async (req, res) => {
+//     try {
+//         res.status(200).json({ status: "success" });
+//     } catch (error) {
+//         res.status(400).json({ status: "fail", message: error.message });
+//     }
+// };
+
 module.exports = qnaController;
