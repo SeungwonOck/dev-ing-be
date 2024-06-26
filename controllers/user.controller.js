@@ -2,6 +2,8 @@ const User = require("../model/User");
 const bcrypt = require("bcryptjs");
 const userController = {};
 const Post = require("../model/Post");
+const MeetUp = require('../model/MeetUp');
+const QnA = require('../model/QnA');
 
 userController.createUser = async (req, res) => {
     try {
@@ -169,9 +171,11 @@ userController.getUserByNickName = async (req, res) => {
             throw new Error("사용자를 찾을 수 없습니다")
         }
         const uniqueUserPost = await Post.find({ author: uniqueUser._id, isDelete: false })
+        const uniqueUserMeetUp = await MeetUp.find({ organizer: uniqueUser._id, isDelete: false })
+        const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false})
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
-        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost, following, followers } })
+        res.status(200).json({ status: "success", data: { uniqueUser, uniqueUserPost, uniqueUserMeetUp, uniqueUserQna, following, followers } })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }

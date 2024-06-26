@@ -7,6 +7,7 @@ const meetUpController = require("../controllers/meetUpController");
 router.get("/all", meetUpController.getAllMeetUp);
 router.post("/", authController.authenticate, meetUpController.createMeetUp);
 router.post("/join", authController.authenticate, meetUpController.joinMeetUp);
+router.post("/leave", authController.authenticate, meetUpController.leaveMeetUp);
 router.get("/:id", meetUpController.getMeetUp);
 router.put("/:id", meetUpController.updateMeetUp);
 router.delete("/:id", meetUpController.deleteMeetUp);
