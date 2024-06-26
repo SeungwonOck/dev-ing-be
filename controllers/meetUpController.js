@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const MeetUp = require("../model/MeetUp");
 const meetUpController = {};
 const parseDate = require("../utils/parseDate");
@@ -158,6 +159,41 @@ meetUpController.joinMeetUp = async (req, res) => {
             meetUp.participants.push(userId);
         } else {
             throw new Error("이미 참가한 유저입니다");
+        }
+
+        await meetUp.save();
+
+        await MeetUp.populate(meetUp, {
+            path: "participants",
+            select: "nickName profileImage",
+        });
+
+        res.status(200).json({ status: "success", data: { meetUp } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+meetUpController.leaveMeetUp = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { meetUpId } = req.body;
+
+        const meetUp = await MeetUp.findById(meetUpId).populate("organizer");
+
+        if (!meetUp) {
+            throw new Error("MeetUp이 존재하지 않습니다");
+        }
+
+        if (meetUp.organizer === userId) {
+            throw new Error("자신이 만든 모임은 나갈 수 없습니다");
+        }
+
+        if (!meetUp.participants.includes(userId)) {
+            throw new Error("참가하지 않은 유저입니다");
+        } else {
+            const newParticipants = meetUp.participants.filter(participant => participant.toString() !== userId)
+            meetUp.participants = newParticipants;
         }
 
         await meetUp.save();
