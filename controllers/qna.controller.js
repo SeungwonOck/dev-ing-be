@@ -167,6 +167,7 @@ qnaController.updateAnswer = async (req, res) => {
         }
 
         answer.set(updateData);
+        await qna.save();
 
         res.status(200).json({
             status: "success",
