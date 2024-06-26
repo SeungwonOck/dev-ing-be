@@ -107,6 +107,9 @@ meetUpController.getAllMeetUp = async (req, res) => {
         const allMeetUp = await MeetUp.find({ isDelete: false }).populate({
             path: "organizer",
             select: "nickName profileImage"
+        }).populate({
+            path: "participants",
+            select: "nickName"
         });
 
         // if (allMeetUp.length === 0) {

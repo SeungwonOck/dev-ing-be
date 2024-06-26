@@ -7,6 +7,7 @@ const postApi = require("./post.api");
 const meetUpApi = require("./meetUp.api");
 const qnaApi = require("./qna.api");
 const homeApi = require("./home.api");
+const reportApi = require("./report.api");
 
 router.use("/user", userApi);
 router.use("/auth", authApi);
@@ -14,5 +15,6 @@ router.use("/post", postApi);
 router.use("/meetup", meetUpApi);
 router.use("/qna", qnaApi);
 router.use("/home", homeApi);
+router.use("/report", reportApi);
 
 module.exports = router;

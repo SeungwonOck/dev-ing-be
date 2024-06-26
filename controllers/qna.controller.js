@@ -57,6 +57,9 @@ qnaController.getAllQnA = async (req, res) => {
         const allQnA = await QnA.find({ isDelete: false }).populate({
             path: "author",
             select: "userName profileImage",
+        }).populate({
+            path: "answers",
+            populate: { path: "author", select: "nickName" },
         });
 
         res.status(200).json({ status: "success", data: { allQnA } });
