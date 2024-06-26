@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const formatDateTime = require("../utils/formatDateTime");
 const getCommentCount = require("../utils/getCommentCount");
 
-const answerSchema = new Schema({
+const answerSchema = Schema({
     author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
     content: { type: String, required: true },
     image: { type: String },
@@ -14,12 +14,13 @@ const answerSchema = new Schema({
     createAt: { type: Date, default: Date.now },
 });
 
-const QnASchema = new Schema({
+const QnASchema = Schema({
     author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
     title: { type: String, required: true },
     content: { type: String, required: true },
     tags: [{ type: String }],
     answers: [answerSchema],
+    category: [{ type: String }],
     answerCount: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
     isDelete: { type: Boolean, default: false },
