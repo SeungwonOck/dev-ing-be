@@ -4,12 +4,16 @@ const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const meetUpController = require("../controllers/meetUpController");
 
+//모임 관련 라우터
 router.get("/all", meetUpController.getAllMeetUp);
-router.post("/", authController.authenticate, meetUpController.createMeetUp);
-router.post("/join", authController.authenticate, meetUpController.joinMeetUp);
-router.post("/leave", authController.authenticate, meetUpController.leaveMeetUp);
 router.get("/:id", meetUpController.getMeetUp);
+router.post("/", authController.authenticate, meetUpController.createMeetUp);
 router.put("/:id", meetUpController.updateMeetUp);
 router.delete("/:id", meetUpController.deleteMeetUp);
+router.put("/block/:id", authController.authenticate, authController.checkAdminPermission, meetUpController.blockMeetUp);
+
+//참여 관련 라우터
+router.post("/join", authController.authenticate, meetUpController.joinMeetUp);
+router.post("/leave", authController.authenticate, meetUpController.leaveMeetUp);
 
 module.exports = router;
