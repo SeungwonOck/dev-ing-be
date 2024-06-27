@@ -17,6 +17,7 @@ const meetUpSchema = Schema({
     currentParticipants: { type: Number },
     location: { type: String },
     isDelete: { type: Boolean, default: false },
+    isBlock: { type: Boolean, default: false },
     createAt: { type: Date, default: Date.now },
 });
 
