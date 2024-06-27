@@ -145,6 +145,11 @@ meetUpController.getAllMeetUp = async (req, res) => {
         //     throw new Error("모임이 존재하지 않습니다");
         // }
 
+        // 마감 여부 확인하기
+        allMeetUp.map(async (meetup)=>(
+            await meetup.checkIsClosed()
+        ))
+
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });

@@ -44,7 +44,7 @@ meetUpSchema.methods.checkIsClosed = async function () {
     else {
         this.isClosed = false;
     }
-    console.log(this.participants, (this.participants.length === this.maxParticipants), this.maxParticipants, this.isClosed);
+    
     await this.save();
 };
 
