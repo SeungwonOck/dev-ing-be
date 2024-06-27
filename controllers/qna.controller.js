@@ -54,13 +54,15 @@ qnaController.getQnA = async (req, res) => {
 
 qnaController.getAllQnA = async (req, res) => {
     try {
-        const allQnA = await QnA.find({ isDelete: false }).populate({
-            path: "author",
-            select: "userName profileImage",
-        }).populate({
-            path: "answers",
-            populate: { path: "author", select: "nickName" },
-        });
+        const allQnA = await QnA.find({ isDelete: false })
+            .populate({
+                path: "author",
+                select: "userName profileImage",
+            })
+            .populate({
+                path: "answers",
+                populate: { path: "author", select: "nickName" },
+            });
 
         res.status(200).json({ status: "success", data: { allQnA } });
     } catch (error) {
