@@ -10,7 +10,7 @@ const QnA = require("../model/QnA");
 reportController.createReport = async (req, res) => {
     try {
         const { userId } = req;
-        const { reportedUserId, contentId, contentType, reasons } = req.body;
+        const { reportedUserId, postId, meetUpId, qnaId, contentType, reasons } = req.body;
 
         const reporterUser = await User.findById(userId);
         if(!reporterUser) throw new Error('신고 권한이 없습니다. 로그인해주세요.');
@@ -18,31 +18,21 @@ reportController.createReport = async (req, res) => {
         const reportedUser = await User.findById(reportedUserId);
         if (!reportedUser) throw new Error('신고 대상 사용자가 존재하지 않습니다.');
 
-        const previousReport = await Report.find({ reporter: userId, contentId: contentId });
-        if(previousReport.length > 0) throw new Error('이미 신고한 게시글입니다.')
+        //Report에서 reporter가 userId이고, 각 id 카테고리별로 이전에 신고된 게시글인지 하나라도 일치하는 문서를 반환
+        let previousReport;
 
-        let content;
-        switch (contentType) {
-            case 'post':
-                content = await Post.findById(contentId);
-                if (!content) throw new Error('신고 대상 게시글이 존재하지 않습니다.');
-                break;
-            case 'meetup':
-                content = await MeetUp.findById(contentId);
-                if (!content) throw new Error('신고 대상 모임이 존재하지 않습니다.');
-                break;
-            case 'qna':
-                content = await QnA.findById(contentId);
-                if (!content) throw new Error('신고 대상 질문이 존재하지 않습니다.');
-                break;
-            default:
-                throw new Error('올바른 콘텐츠 유형이 아닙니다.');
-        }
+        if(postId) previousReport = await Report.findOne({ reporter: userId, $or: { postId }});
+        if(meetUpId) previousReport = await Report.findOne({ reporter: userId, $or: { meetUpId }});
+        if(qnaId) previousReport = await Report.findOne({ reporter: userId, $or: { qnaId }});
+        
+        if(previousReport) throw new Error('이미 신고한 게시글입니다.')
 
         const newReport = new Report({
             reporter: userId,
             reported: reportedUserId,
-            content: content._id,
+            postId: postId || undefined,
+            meetUpId: meetUpId || undefined,
+            qnaId: qnaId || undefined,
             contentType: contentType,
             reasons: reasons,
             isConfirmed: false
@@ -67,30 +57,21 @@ reportController.getAllReport = async (req, res) => {
                 path: "reporter",
                 select: "nickName"
             })
-            .populate({ path: "content" });
-
-        for (let report of reportList) {
-            let contentModel;
-            switch (report.contentType) {
-                case 'post':
-                    contentModel = await Post.findById(report.content);
-                    break;
-                case 'meetup':
-                    contentModel = await MeetUp.findById(report.content);
-                    break;
-                case 'qna':
-                    contentModel = await QnA.findById(report.content);
-                    break;
-                default:
-                    throw new Error('올바른 콘텐츠 유형이 아닙니다.');
-            }
-            if (contentModel) {
-                report.content = contentModel
-            }
-        }
+            .populate({
+                path: "postId",
+                select: "title content",
+            })
+            .populate({
+                path: "meetUpId",
+                select: "title description",
+            })
+            .populate({
+                path: "qnaId",
+                select: "title content",
+            });
 
         if(reportList.length === 0) {
-            throw new Error("신고 내역이 존재하지 않습니다");
+            throw new Error("신고 내역이 없습니다.");
         }
 
         res.status(200).json({ status: 'success', data: { reportList } });
@@ -101,9 +82,47 @@ reportController.getAllReport = async (req, res) => {
 
 reportController.updateReport = async (req, res) => {
     try {
+        const { reportId } = req.body;
+        const report = await Report.findById(reportId);
         
+        if(!report) throw new Error('해당 신고내역을 찾을 수 없습니다.')
+        report.isConfirmed = !report.isConfirmed;
+        const confirmState = report.isConfirmed;
+
+        await report.save();
+
+        //신고된 게시글을 찾아서 block처리
+        const updateBlockStatus = async (model, id, status) => {
+            if (id) {
+                const item = await model.findById(id);
+                if (item) {
+                    item.isBlock = status;
+                    await item.save();
+                }
+            }
+        };
+
+        await updateBlockStatus(Post, report.postId, confirmState);
+        await updateBlockStatus(MeetUp, report.meetUpId, confirmState);
+        await updateBlockStatus(QnA, report.qnaId, confirmState);
+
+        //신고당한 유저의 report +- 처리
+        const user = await User.findById(report.reported);
+
+        if (!user) throw new Error('해당 사용자를 찾을 수 없습니다.');
+        if (user.isDelete) throw new Error('회원 리스트에서 삭제 처리된 사용자입니다.');
+
+        user.report += confirmState ? 1 : -1;
+
+        await user.save();
+
+        res.status(200).json({ 
+            status: 'success', 
+            message: confirmState ? '신고 승인이 완료되었습니다.' : '신고 승인을 취소하였습니다.', 
+            data: { user, report } 
+        });
     } catch (error) {
-        
+        res.status(400).json({ status: "fail", message: error.message });
     }
 };
 

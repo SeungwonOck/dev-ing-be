@@ -104,17 +104,51 @@ meetUpController.updateMeetUp = async (req, res) => {
 
 meetUpController.getAllMeetUp = async (req, res) => {
     try {
-        const allMeetUp = await MeetUp.find({ isDelete: false }).populate({
-            path: "organizer",
-            select: "nickName profileImage"
-        }).populate({
-            path: "participants",
-            select: "nickName"
-        });
+        const { keyword, type, category, isRecruit } = req.query;
+
+        let query = { isDelete: false, isBlock: false };
+
+        if (keyword) {
+            const keywordRegex = new RegExp(keyword, "i");
+            query.$or = [
+                { title: { $regex: keywordRegex } },
+            ];
+        }
+
+        if (category) {
+            query.category = { $in: [category] };
+        }
+
+        if (isRecruit === "true") {
+            query.isClosed = { $in: ["false"] };
+        }
+
+        const sortOptions = {
+            latest: { sortBy: { createAt: -1 } },
+            closed: { sortBy: { date: 1 } },
+            default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
+        };
+
+        const { sortBy } = sortOptions[type] || sortOptions.default;
+
+        const allMeetUp = await MeetUp.find(query)
+            .sort(sortBy)
+            .populate({
+                path: "organizer",
+                select: "nickName profileImage"
+            }).populate({
+                path: "participants",
+                select: "nickName"
+            });
 
         // if (allMeetUp.length === 0) {
-        //     throw new Error("meetUp이 존재하지 않습니다");
+        //     throw new Error("모임이 존재하지 않습니다");
         // }
+
+        // 마감 여부 확인하기
+        allMeetUp.map(async (meetup)=>(
+            await meetup.checkIsClosed()
+        ))
 
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
@@ -165,6 +199,7 @@ meetUpController.joinMeetUp = async (req, res) => {
         }
 
         await meetUp.save();
+        await meetUp.checkIsClosed();
 
         await MeetUp.populate(meetUp, {
             path: "participants",
@@ -211,5 +246,25 @@ meetUpController.leaveMeetUp = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+meetUpController.blockMeetUp = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const meetUp = await MeetUp.findById(id);
+        if (!meetUp) throw new Error('해당 모임이 존재하지 않습니다.')
+
+        meetUp.isBlock = !meetUp.isBlock;
+        const meetUpStatus = meetUp.isBlock;
+
+        await meetUp.save();
+
+        res.status(200).json({
+            status: "success",
+            message: meetUpStatus ? "모임을 비공개 처리하였습니다." : "모임을 공개로 전환하였습니다."
+        });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+}
 
 module.exports = meetUpController;

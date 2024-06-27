@@ -16,7 +16,9 @@ const meetUpSchema = Schema({
     maxParticipants: { type: Number, required: true },
     currentParticipants: { type: Number },
     location: { type: String },
+    isClosed: { type: Boolean, default: false },
     isDelete: { type: Boolean, default: false },
+    isBlock: { type: Boolean, default: false },
     createAt: { type: Date, default: Date.now },
 });
 
@@ -28,6 +30,22 @@ meetUpSchema.methods.toJSON = function () {
     obj.date = formatDateTime(obj.date);
     obj.currentParticipants = obj.participants.length;
     return obj;
+};
+
+meetUpSchema.methods.checkIsClosed = async function () {
+    // 현재 인원이랑 최대 인원이랑 같아지면 마감
+    if (this.participants.length === this.maxParticipants) {
+        this.isClosed = true;
+    }
+    // 시작 예정 날짜가 오늘 날짜보다 전이면
+    else if (this.date < new Date()) {
+        this.isClosed = true;
+    }
+    else {
+        this.isClosed = false;
+    }
+    
+    await this.save();
 };
 
 const MeetUp = mongoose.model("MeetUp", meetUpSchema);
