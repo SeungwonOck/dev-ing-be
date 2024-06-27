@@ -3,14 +3,14 @@ const ChatRoom = require("../model/ChatRoom");
 
 chatController.createChatRoom = async (req, res) => {
     try {
-        const { organizer, participants } = req.body;
+        const { organizerId, participants } = req.body;
 
-        if (!organizer || !participants) {
+        if (!organizerId || !participants) {
             throw new Error("필수 항목이 누락되었습니다");
         }
 
         const chatRoom = new ChatRoom({
-            organizer,
+            organizer: organizerId,
             participants,
         });
 
@@ -21,4 +21,17 @@ chatController.createChatRoom = async (req, res) => {
     }
 };
 
+chatController.getChatRoomList = async (req, res) => {
+    try {
+        const { userId } = req;
+
+        const chatRooms = await ChatRoom.find({
+            participants: { $elemMatch: { $eq: userId } },
+        });
+
+        res.status(200).json({ status: "success", data: { chatRooms } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
 module.exports = chatController;
