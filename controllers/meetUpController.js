@@ -125,7 +125,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
 
         const sortOptions = {
             latest: { sortBy: { createAt: -1 } },
-            closed: { sortBy: { date: -1 } },
+            closed: { sortBy: { date: 1 } },
             default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
         };
 
