@@ -16,6 +16,7 @@ const postSchema = Schema({
     scrapCount: { type: Number, default: 0 },
     isUpdated: { type: Boolean, default: false },
     isDelete: { type: Boolean, default: false },
+    isBlock: { type: Boolean, default: false },
     comments: [commentSchema],
     createAt: { type: Date, default: Date.now },
 });

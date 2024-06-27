@@ -31,10 +31,10 @@ qnaController.getQnA = async (req, res) => {
     try {
         const { id } = req.params;
         const qna = await QnA.findById(id)
-            .populate({ path: "author", select: "userName profileImage" })
+            .populate({ path: "author", select: "nickName profileImage" })
             .populate({
                 path: "answers.author",
-                select: "userName profileImage",
+                select: "nickName profileImage",
             });
 
         if (!qna || qna.isDelete) {
@@ -54,12 +54,12 @@ qnaController.getQnA = async (req, res) => {
 
 qnaController.getAllQnA = async (req, res) => {
     try {
-        const allQnA = await QnA.find({ isDelete: false })
+        const allQnA = await QnA.find({ isDelete: false, isBlock: false })
+            .sort({ createAt: -1 })
             .populate({
                 path: "author",
-                select: "userName profileImage",
-            })
-            .populate({
+                select: "nickName profileImage",
+            }).populate({
                 path: "answers",
                 populate: { path: "author", select: "nickName" },
             });
@@ -167,6 +167,7 @@ qnaController.updateAnswer = async (req, res) => {
         }
 
         answer.set(updateData);
+        await qna.save();
 
         await qna.save();
 
@@ -247,5 +248,25 @@ qnaController.likesAnswer = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+qnaController.blockQnA = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const qna = await QnA.findById(id);
+        if (!qna) throw new Error('QnA가 존재하지 않습니다.')
+
+        qna.isBlock = !qna.isBlock;
+        const qnaStatus = qna.isBlock;
+
+        await qna.save();
+
+        res.status(200).json({ 
+            status: "success", 
+            message: qnaStatus ? "QnA를 비공개 처리하였습니다." : "QnA를 공개로 전환하였습니다." 
+        });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+}
 
 module.exports = qnaController;

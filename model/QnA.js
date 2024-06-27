@@ -24,6 +24,7 @@ const QnASchema = Schema({
     answerCount: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
     isDelete: { type: Boolean, default: false },
+    isBlock: { type: Boolean, default: false },
 });
 
 QnASchema.methods.toJSON = function () {

@@ -12,8 +12,6 @@ reportController.createReport = async (req, res) => {
         const { userId } = req;
         const { reportedUserId, postId, meetUpId, qnaId, contentType, reasons } = req.body;
 
-        console.log('신고정보', reportedUserId, postId, meetUpId, qnaId, contentType, reasons)
-
         const reporterUser = await User.findById(userId);
         if(!reporterUser) throw new Error('신고 권한이 없습니다. 로그인해주세요.');
 
@@ -73,7 +71,7 @@ reportController.getAllReport = async (req, res) => {
             });
 
         if(reportList.length === 0) {
-            throw new Error("신고 내역이 존재하지 않습니다");
+            throw new Error("신고 내역이 없습니다.");
         }
 
         res.status(200).json({ status: 'success', data: { reportList } });
@@ -84,9 +82,47 @@ reportController.getAllReport = async (req, res) => {
 
 reportController.updateReport = async (req, res) => {
     try {
+        const { reportId } = req.body;
+        const report = await Report.findById(reportId);
         
+        if(!report) throw new Error('해당 신고내역을 찾을 수 없습니다.')
+        report.isConfirmed = !report.isConfirmed;
+        const confirmState = report.isConfirmed;
+
+        await report.save();
+
+        //신고된 게시글을 찾아서 block처리
+        const updateBlockStatus = async (model, id, status) => {
+            if (id) {
+                const item = await model.findById(id);
+                if (item) {
+                    item.isBlock = status;
+                    await item.save();
+                }
+            }
+        };
+
+        await updateBlockStatus(Post, report.postId, confirmState);
+        await updateBlockStatus(MeetUp, report.meetUpId, confirmState);
+        await updateBlockStatus(QnA, report.qnaId, confirmState);
+
+        //신고당한 유저의 report +- 처리
+        const user = await User.findById(report.reported);
+
+        if (!user) throw new Error('해당 사용자를 찾을 수 없습니다.');
+        if (user.isDelete) throw new Error('회원 리스트에서 삭제 처리된 사용자입니다.');
+
+        user.report += confirmState ? 1 : -1;
+
+        await user.save();
+
+        res.status(200).json({ 
+            status: 'success', 
+            message: confirmState ? '신고 승인이 완료되었습니다.' : '신고 승인을 취소하였습니다.', 
+            data: { user, report } 
+        });
     } catch (error) {
-        
+        res.status(400).json({ status: "fail", message: error.message });
     }
 };
 
