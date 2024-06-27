@@ -7,6 +7,7 @@ const postApi = require("./post.api");
 const meetUpApi = require("./meetUp.api");
 const qnaApi = require("./qna.api");
 const homeApi = require("./home.api");
+const chatApi = require("./chat.api");
 const reportApi = require("./report.api");
 const adminApi = require("./admin.api");
 
@@ -16,6 +17,7 @@ router.use("/post", postApi);
 router.use("/meetup", meetUpApi);
 router.use("/qna", qnaApi);
 router.use("/home", homeApi);
+router.use("/chat", chatApi);
 router.use("/report", reportApi);
 router.use("/admin", adminApi);
 
