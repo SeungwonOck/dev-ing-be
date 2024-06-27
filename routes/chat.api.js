@@ -5,5 +5,6 @@ const authController = require("../controllers/auth.controller");
 
 router.post("/", chatController.createChatRoom);
 router.get("/", authController.authenticate, chatController.getChatRoomList);
+router.get("/:id", chatController.getChatRoom);
 
 module.exports = router;

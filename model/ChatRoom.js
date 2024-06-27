@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const formatDateTime = require("../utils/formatDateTime");
 
 const chatSchema = Schema({
     user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
@@ -24,6 +25,15 @@ chatRoomSchema.pre("save", function (next) {
     }
     next();
 });
+
+chatRoomSchema.methods.toJSON = function () {
+    const obj = this.toObject();
+    obj.chat.map((chat) => {
+        chat.createAt = formatDateTime(chat.createAt);
+    });
+    delete obj.__v;
+    return obj;
+};
 
 const ChatRoom = mongoose.model("ChatRoom", chatRoomSchema);
 
