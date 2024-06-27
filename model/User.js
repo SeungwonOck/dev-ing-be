@@ -55,7 +55,7 @@ const userSchema = Schema({
     level: { type: String, default: "user" },
     report: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
-    scrap: [ scrapSchema ]
+    scrap: [scrapSchema],
 });
 
 userSchema.methods.toJSON = function () {
