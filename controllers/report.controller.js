@@ -21,28 +21,10 @@ reportController.createReport = async (req, res) => {
         const previousReport = await Report.find({ reporter: userId, contentId: contentId });
         if(previousReport.length > 0) throw new Error('이미 신고한 게시글입니다.')
 
-        let content;
-        switch (contentType) {
-            case 'post':
-                content = await Post.findById(contentId);
-                if (!content) throw new Error('신고 대상 게시글이 존재하지 않습니다.');
-                break;
-            case 'meetup':
-                content = await MeetUp.findById(contentId);
-                if (!content) throw new Error('신고 대상 모임이 존재하지 않습니다.');
-                break;
-            case 'qna':
-                content = await QnA.findById(contentId);
-                if (!content) throw new Error('신고 대상 질문이 존재하지 않습니다.');
-                break;
-            default:
-                throw new Error('올바른 콘텐츠 유형이 아닙니다.');
-        }
-
         const newReport = new Report({
             reporter: userId,
             reported: reportedUserId,
-            content: content._id,
+            content: contentId,
             contentType: contentType,
             reasons: reasons,
             isConfirmed: false
@@ -67,27 +49,12 @@ reportController.getAllReport = async (req, res) => {
                 path: "reporter",
                 select: "nickName"
             })
-            .populate({ path: "content" });
-
-        for (let report of reportList) {
-            let contentModel;
-            switch (report.contentType) {
-                case 'post':
-                    contentModel = await Post.findById(report.content);
-                    break;
-                case 'meetup':
-                    contentModel = await MeetUp.findById(report.content);
-                    break;
-                case 'qna':
-                    contentModel = await QnA.findById(report.content);
-                    break;
-                default:
-                    throw new Error('올바른 콘텐츠 유형이 아닙니다.');
-            }
-            if (contentModel) {
-                report.content = contentModel
-            }
-        }
+            .populate({
+                path: "content",
+                // contentType에 따라서 적절한 모델을 참조하도록 설정합니다
+                match: { contentType: { $in: ["Post", "MeetUp", "QnA"] } },
+                select: "title" // 예를 들어 Post 모델의 title 필드를 선택할 수 있습니다
+            });
 
         if(reportList.length === 0) {
             throw new Error("신고 내역이 존재하지 않습니다");
