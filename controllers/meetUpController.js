@@ -118,7 +118,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
         if (category) {
             query.category = { $in: [category] };
         }
-        //
+
         if (isRecruit === "true") {
             query.isClosed = { $in: ["false"] };
         }
@@ -144,6 +144,11 @@ meetUpController.getAllMeetUp = async (req, res) => {
         // if (allMeetUp.length === 0) {
         //     throw new Error("모임이 존재하지 않습니다");
         // }
+
+        // 마감 여부 확인하기
+        allMeetUp.map(async (meetup)=>(
+            await meetup.checkIsClosed()
+        ))
 
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
@@ -253,9 +258,9 @@ meetUpController.blockMeetUp = async (req, res) => {
 
         await meetUp.save();
 
-        res.status(200).json({ 
-            status: "success", 
-            message: meetUpStatus ? "모임을 비공개 처리하였습니다." : "모임을 공개로 전환하였습니다." 
+        res.status(200).json({
+            status: "success",
+            message: meetUpStatus ? "모임을 비공개 처리하였습니다." : "모임을 공개로 전환하였습니다."
         });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
