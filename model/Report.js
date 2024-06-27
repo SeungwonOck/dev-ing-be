@@ -22,4 +22,6 @@ reportSchema.methods.toJSON = function () {
     return obj;
 };
 
-module.exports = mongoose.model("Report", reportSchema);
+const Report = mongoose.model("Report", reportSchema);
+
+module.exports = Report;

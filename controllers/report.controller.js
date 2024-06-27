@@ -98,7 +98,7 @@ reportController.updateReport = async (req, res) => {
                 if (item) {
                     item.isBlock = status;
                     await item.save();
-                }
+                } 
             }
         };
 
