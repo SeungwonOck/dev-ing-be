@@ -16,6 +16,7 @@ const meetUpSchema = Schema({
     maxParticipants: { type: Number, required: true },
     currentParticipants: { type: Number },
     location: { type: String },
+    isClosed: { type: Boolean, default: false },
     isDelete: { type: Boolean, default: false },
     createAt: { type: Date, default: Date.now },
 });
