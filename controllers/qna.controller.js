@@ -31,10 +31,10 @@ qnaController.getQnA = async (req, res) => {
     try {
         const { id } = req.params;
         const qna = await QnA.findById(id)
-            .populate({ path: "author", select: "userName profileImage" })
+            .populate({ path: "author", select: "nickName profileImage" })
             .populate({
                 path: "answers.author",
-                select: "userName profileImage",
+                select: "nickName profileImage",
             });
 
         if (!qna || qna.isDelete) {
@@ -58,7 +58,7 @@ qnaController.getAllQnA = async (req, res) => {
             .sort({ createAt: -1 })
             .populate({
                 path: "author",
-                select: "userName profileImage",
+                select: "nickName profileImage",
             }).populate({
                 path: "answers",
                 populate: { path: "author", select: "nickName" },
