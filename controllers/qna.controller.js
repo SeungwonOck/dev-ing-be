@@ -73,13 +73,11 @@ qnaController.getAllQnA = async (req, res) => {
 qnaController.updateQnA = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, image, tags } = req.body;
+        const { title, content } = req.body;
 
         const updateData = {
             title,
             content,
-            image,
-            tags,
         };
 
         const updatedQnA = await QnA.findByIdAndUpdate(id, updateData, {
@@ -169,6 +167,8 @@ qnaController.updateAnswer = async (req, res) => {
         }
 
         answer.set(updateData);
+        await qna.save();
+
         await qna.save();
 
         res.status(200).json({
