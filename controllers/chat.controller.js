@@ -75,17 +75,19 @@ chatController.saveChatMessage = async (req, res) => {
     try {
         const { userId } = req;
         const { id } = req.params;
-        const { message, image } = req.body;
+        const { userName, message, image } = req.body;
 
-        const chatRoom = await chatRoom.findOne({ roomId: id });
+        const chatRoom = await ChatRoom.findOne({ roomId: id });
+
         const newChat = {
-            user: userId,
+            userName,
             message,
             image,
         };
 
         chatRoom.chat.push(newChat);
-        await chat.save();
+
+        await chatRoom.save();
 
         res.status(200).json({ status: "success" });
     } catch (error) {

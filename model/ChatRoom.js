@@ -3,7 +3,8 @@ const { Schema } = mongoose;
 const formatDateTime = require("../utils/formatDateTime");
 
 const chatSchema = Schema({
-    user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    // user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    userName: { type: String, required: true },
     message: { type: String, required: true },
     image: { type: String },
     createAt: { type: Date, default: Date.now },
