@@ -55,6 +55,39 @@ chatController.getChatRoomList = async (req, res) => {
 chatController.getChatRoom = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const chatRoom = await ChatRoom.findOne({ roomId: id }).populate({
+            path: "roomId",
+            select: "title",
+        });
+
+        if (!chatRoom) {
+            throw new Error("채팅방을 찾을 수 없습니다");
+        }
+
+        res.status(200).json({ status: "success", data: { chatRoom } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+chatController.saveChatMessage = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { id } = req.params;
+        const { message, image } = req.body;
+
+        const chatRoom = await chatRoom.findOne({ roomId: id });
+        const newChat = {
+            user: userId,
+            message,
+            image,
+        };
+
+        chatRoom.chat.push(newChat);
+        await chat.save();
+
+        res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }
