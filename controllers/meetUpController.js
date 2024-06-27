@@ -104,7 +104,7 @@ meetUpController.updateMeetUp = async (req, res) => {
 
 meetUpController.getAllMeetUp = async (req, res) => {
     try {
-        const { keyword, type, category, isClosed } = req.query;
+        const { keyword, type, category, isRecruit } = req.query;
 
         let query = { isDelete: false, isBlock: false };
 
@@ -119,11 +119,9 @@ meetUpController.getAllMeetUp = async (req, res) => {
             query.category = { $in: [category] };
         }
         //
-        // if (isClosed === "true") {
-        //     query.$or = [
-        //         { currentParticipants: { $eq: query.maxParticipants } },
-        //     ];
-        // }
+        if (isRecruit === "true") {
+            query.isClosed = { $in: ["false"] };
+        }
 
         const sortOptions = {
             latest: { sortBy: { createAt: -1 } },
