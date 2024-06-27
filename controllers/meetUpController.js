@@ -106,7 +106,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
     try {
         const { keyword, type, category, isClosed } = req.query;
 
-        let query = { isDelete: false };
+        let query = { isDelete: false, isBlock: false };
 
         if (keyword) {
             const keywordRegex = new RegExp(keyword, "i");
