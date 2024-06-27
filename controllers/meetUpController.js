@@ -118,7 +118,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
         if (category) {
             query.category = { $in: [category] };
         }
-        //
+
         if (isRecruit === "true") {
             query.isClosed = { $in: ["false"] };
         }
@@ -253,9 +253,9 @@ meetUpController.blockMeetUp = async (req, res) => {
 
         await meetUp.save();
 
-        res.status(200).json({ 
-            status: "success", 
-            message: meetUpStatus ? "모임을 비공개 처리하였습니다." : "모임을 공개로 전환하였습니다." 
+        res.status(200).json({
+            status: "success",
+            message: meetUpStatus ? "모임을 비공개 처리하였습니다." : "모임을 공개로 전환하였습니다."
         });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
