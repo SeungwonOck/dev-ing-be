@@ -54,8 +54,12 @@ postController.getPost = async (req, res) => {
                 select: "nickName profileImage",
             });
 
-        if (!post || post.isDelete) {
+        if (!post) {
             throw new Error("포스트가 존재하지 않습니다");
+        } else if(post.isDelete) {
+            throw new Error("삭제된 포스트입니다");
+        } else if(post.isBlock) {
+            throw new Error("신고되어 제한된 포스트입니다");
         }
 
         res.status(200).json({ status: "success", data: { post } });
@@ -115,7 +119,7 @@ postController.getAllPost = async (req, res) => {
 
         const { tag, keyword, type, isFollowing } = req.query;
 
-        let query = { isDelete: false };
+        let query = { isDelete: false, isBlock: false };
 
         if (tag) {
             query.tags = { $in: [tag] };
@@ -305,5 +309,25 @@ postController.addScrap = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+postController.blockPost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await Post.findById(id);
+        if (!post) throw new Error('포스트가 존재하지 않습니다.')
+
+        post.isBlock = !post.isBlock;
+        const postStatus = post.isBlock;
+
+        await post.save();
+
+        res.status(200).json({ 
+            status: "success", 
+            message: postStatus ? "포스트를 비공개 처리하였습니다." : "포스트를 공개로 전환하였습니다." 
+        });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+}
 
 module.exports = postController;
