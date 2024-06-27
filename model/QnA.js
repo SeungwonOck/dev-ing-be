@@ -20,6 +20,7 @@ const QnASchema = Schema({
     content: { type: String, required: true },
     tags: [{ type: String }],
     answers: [answerSchema],
+    category: [{ type: String }],
     answerCount: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
     isDelete: { type: Boolean, default: false },

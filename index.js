@@ -1,15 +1,18 @@
 const { createServer } = require("http");
 const app = require("./app");
 const { Server } = require("socket.io");
+require("dotenv").config();
+const cors = require("cors");
 
+const SOCKET_PORT = process.env.SOCKET_PORT || 5001; // 기본값을 설정할 수 있습니다.
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
     },
 });
 
 require("./utils/io")(io);
-httpServer.listen(5001, () => {
-    console.log("server listening on port", 5001);
+httpServer.listen(SOCKET_PORT, () => {
+    console.log("server listening on port", SOCKET_PORT);
 });
