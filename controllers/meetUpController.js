@@ -104,13 +104,44 @@ meetUpController.updateMeetUp = async (req, res) => {
 
 meetUpController.getAllMeetUp = async (req, res) => {
     try {
-        const allMeetUp = await MeetUp.find({ isDelete: false }).populate({
-            path: "organizer",
-            select: "nickName profileImage"
-        }).populate({
-            path: "participants",
-            select: "nickName"
-        });
+        const { keyword, type, category, isClosed } = req.query;
+
+        let query = { isDelete: false };
+
+        if (keyword) {
+            const keywordRegex = new RegExp(keyword, "i");
+            query.$or = [
+                { title: { $regex: keywordRegex } },
+            ];
+        }
+
+        if (category) {
+            query.category = { $in: [category] };
+        }
+
+        // if (isClosed === "true") {
+        //     query.$or = [
+        //         { currentParticipants: { $eq: query.maxParticipants } },
+        //     ];
+        // }
+
+        const sortOptions = {
+            latest: { sortBy: { createAt: -1 } },
+            closed: { sortBy: { date: -1 } },
+            default: { sortBy: { createAt: -1 } }, // 기본적으로 최신순으로 정렬
+        };
+
+        const { sortBy } = sortOptions[type] || sortOptions.default;
+
+        const allMeetUp = await MeetUp.find(query)
+            .sort(sortBy)
+            .populate({
+                path: "organizer",
+                select: "nickName profileImage"
+            }).populate({
+                path: "participants",
+                select: "nickName"
+            });
 
         // if (allMeetUp.length === 0) {
         //     throw new Error("meetUp이 존재하지 않습니다");
