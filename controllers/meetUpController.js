@@ -196,6 +196,7 @@ meetUpController.joinMeetUp = async (req, res) => {
         }
 
         await meetUp.save();
+        await meetUp.checkIsClosed();
 
         await MeetUp.populate(meetUp, {
             path: "participants",
