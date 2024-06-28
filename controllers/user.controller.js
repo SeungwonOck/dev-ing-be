@@ -139,13 +139,23 @@ userController.blockUser = async (req, res) => {
         const { userId } = req.body;
         const user = await User.findById(userId);
 
+        console.log(user)
+
+        if(user.level === 'admin') {
+            throw new Error("관리자는 삭제할 수 없습니다");
+        }
+
         if (!user) throw new Error("유저를 찾을 수 없습니다");
 
-        user.block = true;
+        user.isBlock = !user.isBlock;
+        const userBlockState = user.isBlock;
 
         await user.save();
 
-        res.status(200).json({ status: "success" });
+        res.status(200).json({ 
+            status: "success", 
+            message: userBlockState ? '사용자의 활동이 제한되었습니다' : '사용자의 활동 제한이 풀렸습니다'
+        });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
     }

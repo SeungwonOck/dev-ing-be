@@ -55,11 +55,14 @@ chatController.getChatRoomList = async (req, res) => {
 chatController.getChatRoom = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log('id', id, typeof id)
 
         const chatRoom = await ChatRoom.findOne({ roomId: id }).populate({
             path: "roomId",
             select: "title",
         });
+
+        console.log('chatRoom', chatRoom)
 
         if (!chatRoom) {
             throw new Error("채팅방을 찾을 수 없습니다");
