@@ -71,27 +71,26 @@ chatController.getChatRoom = async (req, res) => {
     }
 };
 
-chatController.saveChatMessage = async (req, res) => {
+chatController.saveChatMessage = async ({ userName, roomId, message }) => {
     try {
-        const { userId } = req;
-        const { id } = req.params;
-        const { userName, message, image } = req.body;
+        const chatRoom = await ChatRoom.findOne({ roomId });
 
-        const chatRoom = await ChatRoom.findOne({ roomId: id });
+        if (!chatRoom) {
+            throw new Error(`Chat room with id ${roomId} not found`);
+        }
 
         const newChat = {
             userName,
             message,
-            image,
         };
 
         chatRoom.chat.push(newChat);
 
         await chatRoom.save();
 
-        res.status(200).json({ status: "success" });
+        return newChat;
     } catch (error) {
-        res.status(400).json({ status: "fail", message: error.message });
+        return error.message;
     }
 };
 
