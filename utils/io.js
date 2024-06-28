@@ -1,3 +1,5 @@
+const chatController = require("../controllers/chat.controller");
+
 function ioFunction(io) {
     io.on("connection", async (socket) => {
         // console.log("connected : ", socket.id);
@@ -11,12 +13,21 @@ function ioFunction(io) {
             // console.log("disconnected : ", socket.id);
         });
 
-        socket.on("chat message", ({ userName, roomId, message }) => {
-            // console.log(
-            //     `userName:${userName} message: ${message} in room: ${roomId}`
-            // );
-            io.to(roomId).emit("chat message", userName, message);
-        });
+        socket.on(
+            "chat message",
+            async ({ userName, userProfileImage, roomId, message }) => {
+                console.log(userName, userProfileImage, roomId, message);
+
+                const savedMessage = await chatController.saveChatMessage({
+                    userName,
+                    userProfileImage,
+                    roomId,
+                    message,
+                });
+
+                io.to(roomId).emit("chat message", savedMessage);
+            }
+        );
     });
 }
 

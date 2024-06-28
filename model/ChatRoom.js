@@ -1,21 +1,20 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const formatDateTime = require("../utils/formatDateTime");
-
+require("dotenv").config();
+const USER_DEFAULT_IMAGE = process.env.USER_DEFAULT_IMAGE;
 const chatSchema = Schema({
-    // user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
     userName: { type: String, required: true },
+    userProfileImage: { type: String, default: USER_DEFAULT_IMAGE },
     message: { type: String, required: true },
     image: { type: String },
     createAt: { type: Date, default: Date.now },
 });
 
 const chatRoomSchema = Schema({
-    roomId: { type: mongoose.Types.ObjectId, ref: "MeetUp" },
-    organizer: { type: mongoose.Types.ObjectId, ref: "User", required: true },
-    participants: [
-        { type: mongoose.Types.ObjectId, ref: "User", required: true },
-    ],
+    roomId: { type: mongoose.Types.ObjectId, ref: "MeetUp", required: true },
+    // organizer: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    participants: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     chat: [chatSchema],
 });
 
