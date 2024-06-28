@@ -7,7 +7,7 @@ const qnaController = {};
 qnaController.createQnA = async (req, res) => {
     try {
         const { userId } = req;
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         if (!title || !content) {
             throw new Error("필수 항목이 누락되었습니다");
@@ -17,6 +17,7 @@ qnaController.createQnA = async (req, res) => {
             author: userId,
             title,
             content,
+            category
         });
 
         await newQnA.save();
@@ -54,15 +55,38 @@ qnaController.getQnA = async (req, res) => {
 
 qnaController.getAllQnA = async (req, res) => {
     try {
-        const allQnA = await QnA.find({ isDelete: false, isBlock: false })
+        const { keyword, category } = req.query;
+
+        let query = { isDelete: false, isBlock: false };
+
+        if (keyword) {
+            const keywordRegex = new RegExp(keyword, "i");
+            query.$or = [
+                { title: { $regex: keywordRegex } },
+                { content: { $regex: keywordRegex } },
+            ];
+        }
+
+        if (category && category !== 'all') {
+            query.category = { $in: [category] };
+        }
+
+        const allQnA = await QnA.find(query)
             .sort({ createAt: -1 })
             .populate({
                 path: "author",
                 select: "nickName profileImage",
             }).populate({
                 path: "answers",
-                populate: { path: "author", select: "nickName" },
+                populate: { 
+                    path: "author", 
+                    select: "nickName"
+                },
             });
+
+        if (!allQnA.length) {
+            throw new Error("질문이 존재하지 않습니다");
+        }
 
         res.status(200).json({ status: "success", data: { allQnA } });
     } catch (error) {
@@ -73,11 +97,12 @@ qnaController.getAllQnA = async (req, res) => {
 qnaController.updateQnA = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         const updateData = {
             title,
             content,
+            category
         };
 
         const updatedQnA = await QnA.findByIdAndUpdate(id, updateData, {
