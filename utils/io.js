@@ -13,18 +13,21 @@ function ioFunction(io) {
             // console.log("disconnected : ", socket.id);
         });
 
-        socket.on("chat message", async ({ userName, roomId, message }) => {
-            // console.log(
-            //     `userName:${userName} message: ${message} in room: ${roomId}`
-            // );
-            const savedMessage = await chatController.saveChatMessage({
-                roomId,
-                userName,
-                message,
-            });
+        socket.on(
+            "chat message",
+            async ({ userName, userProfileImage, roomId, message }) => {
+                console.log(userName, userProfileImage, roomId, message);
 
-            io.to(roomId).emit("chat message", savedMessage);
-        });
+                const savedMessage = await chatController.saveChatMessage({
+                    userName,
+                    userProfileImage,
+                    roomId,
+                    message,
+                });
+
+                io.to(roomId).emit("chat message", savedMessage);
+            }
+        );
     });
 }
 
