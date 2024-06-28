@@ -18,7 +18,7 @@ mongoose
     .then(() => console.log("mongoose connected"))
     .catch((error) => console.log("DB connection failed", error));
 
-app.use("/", indexRouter);
+app.use("/api", indexRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
