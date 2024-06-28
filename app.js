@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const mongoURI = process.env.MONGODB_URI_PROD;
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 mongoose
     .connect(mongoURI)
@@ -20,6 +20,6 @@ mongoose
 
 app.use("/", indexRouter);
 
-app.listen(port, () => {
-    console.log(`Server is running on ${port}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on ${PORT}`);
 });
