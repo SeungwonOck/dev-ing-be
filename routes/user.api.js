@@ -5,8 +5,7 @@ const authController = require("../controllers/auth.controller");
 
 router.post("/", userController.createUser);
 router.get("/", authController.authenticate, userController.getUser);
-// router.post("/report", userController.reportUser);
-router.post("/block", authController.checkAdminPermission, userController.blockUser)
+router.post("/block", authController.authenticate, authController.checkAdminPermission, userController.blockUser)
 router.get("/all", userController.getAllUser);
 router.get("/me/:nickName", userController.getUserByNickName);
 router.post("/me/:nickName/follow", authController.authenticate, userController.followUser);
