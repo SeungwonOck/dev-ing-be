@@ -166,7 +166,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
 
         // type이 "closed"인 경우 isClosed가 true인 모임만 필터링
         if (type === "closed") {
-            const closedMeetUps = allMeetUp.filter(meetup => meetup.isClosed === true);
+            const closedMeetUps = allMeetUp.filter(meetup => meetup.isClosed === false);
             res.status(200).json({ status: "success", data: { allMeetUp: closedMeetUps } });
         } else {
             res.status(200).json({ status: "success", data: { allMeetUp } });
