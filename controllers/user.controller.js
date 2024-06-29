@@ -287,4 +287,29 @@ userController.unfollowUser = async (req, res) => {
     }
 }
 
+userController.forgetPassword = async (req, res) => {
+    try {
+        const { nickName, email } = req.body;
+
+        let findUser;
+
+        if(nickName) {
+            findUser = await User.find({ nickName });
+        }
+        if(email) {
+            findUser = await User.find({ email });
+        }
+
+        if(!findUser) {
+            throw new Error(`해당 유저가 존재하지 않습니다`)
+        }
+
+        console.log(findUser)
+
+        res.status(200).json({ status: "success", data: { findUser } })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
+
 module.exports = userController;
