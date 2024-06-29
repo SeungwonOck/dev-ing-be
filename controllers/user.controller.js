@@ -322,13 +322,11 @@ userController.forgetPassword = async (req, res) => {
             findUser = await User.find({ email });
         }
 
-        if (!findUser) {
+        if (findUser.length === 0) {
             throw new Error(`해당 유저가 존재하지 않습니다`)
         }
 
-        console.log(findUser)
-
-        res.status(200).json({ status: "success", data: { findUser } })
+        res.status(200).json({ status: "success", message: '새로 변경할 비밀번호를 입력해주세요', data: { findUser } })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }
