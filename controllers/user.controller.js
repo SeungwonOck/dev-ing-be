@@ -328,10 +328,14 @@ userController.resetPassword = async (req, res) => {
     try {
         const { userId, password } = req.body;
 
+        console.log(userId, password)
+
         const findUser = await User.find({ userId });
         if(findUser.googleUser) {
             throw new Error(`구글로 로그인한 계정은 비밀번호를 설정할 수 없습니다`)
         }
+
+        console.log(findUser)
 
         if (password) {
             // 비밀번호 해시 처리
