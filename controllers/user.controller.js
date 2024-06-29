@@ -208,12 +208,22 @@ userController.getUserByNickName = async (req, res) => {
             throw new Error("사용자를 찾을 수 없습니다")
         }
         const uniqueUserPost = await Post.find({ author: uniqueUser._id, isDelete: false })
+        const uniqueUserMeetUp = await MeetUp.find({ organizer: uniqueUser._id, isDelete: false })
+        const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false })
         const scrapedPostIds = uniqueUser.scrap
             .filter(scrapItem => !scrapItem.isDelete)
             .map(scrapItem => scrapItem.post);
-        const uniqueUserScrap = await Post.find({ _id: { $in: scrapedPostIds }});
-        const uniqueUserMeetUp = await MeetUp.find({ organizer: uniqueUser._id, isDelete: false })
-        const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false })
+        const uniqueUserScrap = await Post.find({ _id: { $in: scrapedPostIds } });
+        const uniqueUserLikes = await Post.find({ userLikes: uniqueUser._id });
+        const uniqueUserPostComments = await Post.find({ 'comments.author': uniqueUser._id, isDelete: false })
+            .populate('author', '_id nickName profileImage createAt')
+            .sort({ createAt: -1 })
+            .lean();
+
+            uniqueUserPostComments.forEach(post => {
+                post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
+                post.comments = undefined;
+            });
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
         res.status(200).json({
@@ -221,9 +231,11 @@ userController.getUserByNickName = async (req, res) => {
             data: {
                 uniqueUser,
                 uniqueUserPost,
-                uniqueUserScrap,
                 uniqueUserMeetUp,
                 uniqueUserQna,
+                uniqueUserScrap,
+                uniqueUserLikes,
+                uniqueUserPostComments,
                 following,
                 followers
             }
