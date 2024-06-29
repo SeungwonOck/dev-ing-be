@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authController = require("../controllers/auth.controller");
-const meetUpController = require("../controllers/meetUpController");
+const meetUpController = require("../controllers/meetUp.controller");
 
 //모임 관련 라우터
 router.get("/all", meetUpController.getAllMeetUp);

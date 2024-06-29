@@ -43,7 +43,7 @@ chatController.getChatRoomList = async (req, res) => {
 
         chatRooms = await Promise.all(
             chatRooms.map(async (chatRoom) => {
-                await chatRoom.populate({ path: "roomId", select: "title" });
+                await chatRoom.populate({ path: "roomId", select: "title category" });
                 // await chatRoom.populate({ path: "organizer", select: "_id" });
                 await chatRoom.populate({
                     path: "participants",
@@ -62,7 +62,6 @@ chatController.getChatRoomList = async (req, res) => {
 chatController.getChatRoom = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log('id', id, typeof id)
 
         const chatRoom = await ChatRoom.findOne({ roomId: id }).populate({
             path: "roomId",
