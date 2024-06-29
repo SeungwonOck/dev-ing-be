@@ -10,7 +10,7 @@ const meetUpSchema = Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     date: { type: Date, required: true },
-    category: [{ type: String, required: true }],
+    category: { type: String, required: true },
     image: { type: String, default: MEETUP_DEFAULT_IMAGE },
     participants: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     maxParticipants: { type: Number, required: true },
