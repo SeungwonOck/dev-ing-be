@@ -8,7 +8,7 @@ router.get("/all", authController.authenticate, postController.getAllPost);
 router.get("/:id", postController.getPost);
 router.post("/", authController.authenticate, postController.createPost);
 router.put("/:id", postController.updatePost);
-router.delete("/:id", postController.deletePost);
+router.delete("/:id", authController.authenticate, postController.deletePost);
 router.put("/block/:id", authController.authenticate, authController.checkAdminPermission, postController.blockPost);
 
 //comment 관련 라우터

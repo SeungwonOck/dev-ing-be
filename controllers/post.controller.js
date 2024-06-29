@@ -7,7 +7,6 @@ const User = require("../model/User");
 postController.createPost = async (req, res) => {
     try {
         const { userId } = req;
-
         const { title, content, image, tags } = req.body;
 
         if (!title || !content) {
@@ -27,6 +26,9 @@ postController.createPost = async (req, res) => {
         });
 
         await newPost.save();
+
+        const user = await User.findById(userId);
+        await user.addActivity(userId);
 
         res.status(200).json({ status: "success", data: { newPost } });
     } catch (error) {
@@ -96,6 +98,7 @@ postController.updatePost = async (req, res) => {
 
 postController.deletePost = async (req, res) => {
     try {
+        const { userId } = req;
         const { id } = req.params;
         const post = await Post.findById(id);
 
@@ -103,6 +106,9 @@ postController.deletePost = async (req, res) => {
 
         post.isDelete = true;
         await post.save();
+
+        const user = await User.findById(userId);
+        await user.substractActivity(userId);
 
         res.status(200).json({ status: "success" });
     } catch (error) {

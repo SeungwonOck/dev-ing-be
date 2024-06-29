@@ -1,5 +1,6 @@
 const QnA = require("../model/QnA");
 const { getUserByNickName } = require("./user.controller");
+const User = require("../model/User");
 const mongoose = require("mongoose");
 
 const qnaController = {};
@@ -21,6 +22,10 @@ qnaController.createQnA = async (req, res) => {
         });
 
         await newQnA.save();
+
+        const user = await User.findById(userId);
+        console.log(userId);
+        await user.addActivity(userId);
 
         res.status(200).json({ status: "success", data: { newQnA } });
     } catch (error) {
@@ -121,6 +126,7 @@ qnaController.updateQnA = async (req, res) => {
 
 qnaController.deleteQnA = async (req, res) => {
     try {
+        const { userId } = req;
         const { id } = req.params;
         const qna = await QnA.findById(id);
 
@@ -128,6 +134,9 @@ qnaController.deleteQnA = async (req, res) => {
 
         qna.isDelete = true;
         await qna.save();
+
+        const user = await User.findById(userId);
+        await user.substractActivity(userId);
 
         res.status(200).json({ status: "success" });
     } catch (error) {
