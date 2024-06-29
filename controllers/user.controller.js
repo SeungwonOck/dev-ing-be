@@ -208,7 +208,9 @@ userController.getUserByNickName = async (req, res) => {
             throw new Error("사용자를 찾을 수 없습니다")
         }
         const uniqueUserPost = await Post.find({ author: uniqueUser._id, isDelete: false })
-        const scrapedPostIds = uniqueUser.scrap.map(scrapItem => scrapItem.post);
+        const scrapedPostIds = uniqueUser.scrap
+            .filter(scrapItem => !scrapItem.isDelete)
+            .map(scrapItem => scrapItem.post);
         const uniqueUserScrap = await Post.find({ _id: { $in: scrapedPostIds }});
         const uniqueUserMeetUp = await MeetUp.find({ organizer: uniqueUser._id, isDelete: false })
         const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false })
