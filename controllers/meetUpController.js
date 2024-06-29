@@ -164,12 +164,6 @@ meetUpController.getAllMeetUp = async (req, res) => {
         // 마감 여부 확인하기
         allMeetUp.map(async (meetup) => await meetup.checkIsClosed());
 
-        // type이 "closed"인 경우 isClosed가 false인 모임만 필터링
-        if (type === "closed") {
-            const closedMeetUps = allMeetUp.filter(meetup => meetup.isClosed === false);
-            return res.status(200).json({ status: "success", data: { allMeetUp: closedMeetUps } });
-        }
-
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
@@ -186,7 +180,6 @@ meetUpController.deleteMeetUp = async (req, res) => {
         meetUp.isDelete = true;
 
         await meetUp.save();
-        chatController.deleteChatRoom({ roomId: id });
         res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });

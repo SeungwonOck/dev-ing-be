@@ -69,8 +69,6 @@ chatController.getChatRoom = async (req, res) => {
             select: "title",
         });
 
-        console.log('chatRoom', chatRoom)
-
         if (!chatRoom) {
             throw new Error("채팅방을 찾을 수 없습니다");
         }
