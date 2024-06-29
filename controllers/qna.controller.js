@@ -1,4 +1,5 @@
 const QnA = require("../model/QnA");
+const User = require("../model/User");
 const { getUserByNickName } = require("./user.controller");
 const mongoose = require("mongoose");
 
