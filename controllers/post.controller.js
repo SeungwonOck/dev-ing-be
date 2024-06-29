@@ -289,7 +289,7 @@ postController.addScrap = async (req, res) => {
         const post = await Post.findById(postId);
         if (user && !post) throw new Error("포스트가 존재하지 않습니다");
 
-        if (user.scrap.some((i) => i.post.equals(post._id))) {
+        if (user.scrap.some((i) => i.post.equals(post._id) && !i.isDelete)) {
             throw new Error("이미 스크랩된 포스트입니다");
         }
 
@@ -309,6 +309,65 @@ postController.addScrap = async (req, res) => {
         res.status(400).json({ status: "fail", message: error.message });
     }
 };
+
+postController.toggleScrapPrivate = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { postId } = req.body;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new Error("사용자가 존재하지 않습니다");
+        }
+
+        const scrapItem = user.scrap.find(i => i.post.toString() === postId.toString());
+        if (!scrapItem) {
+            throw new Error("해당 포스트를 스크랩한 기록이 없습니다");
+        }
+
+        scrapItem.isPrivate = !scrapItem.isPrivate;
+        await user.save();
+
+
+        res.status(200).json({ 
+            status: "success",
+            message: scrapItem.isPrivate ? '비공개로 전환되었습니다' : '공개로 전환되었습니다'
+        });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
+postController.deleteScrap = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { postId } = req.body;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new Error("사용자가 존재하지 않습니다");
+        }
+
+        console.log(postId)
+
+        const scrapItem = user.scrap.find(i => i.post.toString() === postId.toString());
+        if (!scrapItem) {
+            throw new Error("해당 포스트를 스크랩한 기록이 없습니다");
+        }
+
+        scrapItem.isDelete = true;
+        await user.save();
+
+        res.status(200).json({ 
+            status: "success",
+            message: '해당 포스트가 스크랩에서 삭제되었습니다'
+        });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+}
 
 postController.blockPost = async (req, res) => {
     try {

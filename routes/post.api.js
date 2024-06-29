@@ -19,6 +19,8 @@ router.delete('/:postId/comment/:commentId', authController.authenticate, postCo
 //like & scrap 관련 라우터
 router.post("/like", authController.authenticate, postController.incrementLikesAndAddUser)
 router.post('/scrap', authController.authenticate, postController.addScrap)
+router.put('/scrap/private', authController.authenticate, postController.toggleScrapPrivate)
+router.put('/scrap/delete', authController.authenticate, postController.deleteScrap)
 
 
 module.exports = router;
