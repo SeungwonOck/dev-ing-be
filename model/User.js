@@ -110,20 +110,22 @@ userSchema.methods.addActivity = async function (userId) {
 userSchema.methods.addActivity = async function (userId) {
     this.acitivity += 1;
 
-    if (this.acitivity > 10) {
+    if (this.acitivity >= 10 && this.acitivity < 20) {
         this.rank = "Bronze";
-    } else if (this.acitivity > 20) {
+    } else if (this.acitivity >= 20 && this.acitivity < 30) {
         this.rank = "Silver";
-    } else if (this.acitivity > 30) {
+    } else if (this.acitivity >= 30 && this.acitivity < 40) {
         this.rank = "Gold";
-    } else if (this.acitivity > 40) {
+    } else if (this.acitivity >= 40 && this.acitivity < 50) {
         this.rank = "Platinum";
-    } else if (this.acitivity > 50) {
+    } else if (this.acitivity >= 50 && this.acitivity < 60) {
         this.rank = "Diamond";
-    } else if (this.acitivity > 60) {
+    } else if (this.acitivity >= 60 && this.acitivity < 70) {
         this.rank = "Master";
-    } else if (this.acitivity > 70) {
+    } else if (this.acitivity >= 70) {
         this.rank = "Challenger";
+    } else if (this.acitivity >= 0 && this.acitivity < 10) {
+        this.rank = "Entry";
     }
 
     await this.save();
@@ -136,21 +138,21 @@ userSchema.methods.substractActivity = async function (userId) {
         this.acitivity -= 1;
     }
 
-    if (this.acitivity > 70) {
-        this.rank = "Challenger";
-    } else if (this.acitivity > 60) {
-        this.rank = "Master";
-    } else if (this.acitivity > 50) {
-        this.rank = "Diamond";
-    } else if (this.acitivity > 40) {
-        this.rank = "Platinum";
-    } else if (this.acitivity > 30) {
-        this.rank = "Gold";
-    } else if (this.acitivity > 20) {
-        this.rank = "Silver";
-    } else if (this.acitivity > 10) {
+    if (this.acitivity >= 10 && this.acitivity < 20) {
         this.rank = "Bronze";
-    } else if (this.acitivity >= 0) {
+    } else if (this.acitivity >= 20 && this.acitivity < 30) {
+        this.rank = "Silver";
+    } else if (this.acitivity >= 30 && this.acitivity < 40) {
+        this.rank = "Gold";
+    } else if (this.acitivity >= 40 && this.acitivity < 50) {
+        this.rank = "Platinum";
+    } else if (this.acitivity >= 50 && this.acitivity < 60) {
+        this.rank = "Diamond";
+    } else if (this.acitivity >= 60 && this.acitivity < 70) {
+        this.rank = "Master";
+    } else if (this.acitivity >= 70) {
+        this.rank = "Challenger";
+    } else if (this.acitivity >= 0 && this.acitivity < 10) {
         this.rank = "Entry";
     }
 
