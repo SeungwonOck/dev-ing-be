@@ -168,9 +168,8 @@ meetUpController.getAllMeetUp = async (req, res) => {
         if (type === "closed") {
             const closedMeetUps = allMeetUp.filter(meetup => meetup.isClosed === false);
             res.status(200).json({ status: "success", data: { allMeetUp: closedMeetUps } });
-        } else {
-            res.status(200).json({ status: "success", data: { allMeetUp } });
-        }
+            return;
+        } 
 
         res.status(200).json({ status: "success", data: { allMeetUp } });
     } catch (error) {
