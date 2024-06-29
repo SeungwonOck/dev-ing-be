@@ -59,7 +59,7 @@ homeController.getHomeMeetUpData = async (req, res) => {
             });
         homeMeetUp = homeMeetUp.concat(projectPost);
 
-        const studyPost = await MeetUp.find({ category: "기타 스터디", isClosed: false, isDelete: false, isBlock: false })
+        const studyPost = await MeetUp.find({ category: "스터디", isClosed: false, isDelete: false, isBlock: false })
             .sort({ createAt: -1 })
             .limit(1)
             .populate({
