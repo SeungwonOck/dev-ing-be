@@ -8,7 +8,7 @@ router.get('/all', qnaController.getAllQnA)
 router.get("/:id", qnaController.getQnA);
 router.post("/", authController.authenticate, qnaController.createQnA);
 router.put("/:id", qnaController.updateQnA);
-router.delete("/:id", qnaController.deleteQnA);
+router.delete("/:id", authController.authenticate, qnaController.deleteQnA);
 router.put("/block/:id", authController.authenticate, authController.checkAdminPermission, qnaController.blockQnA);
 
 //답변 관련 라우터

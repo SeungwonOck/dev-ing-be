@@ -220,10 +220,10 @@ userController.getUserByNickName = async (req, res) => {
             .sort({ createAt: -1 })
             .lean();
 
-            uniqueUserPostComments.forEach(post => {
-                post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
-                post.comments = undefined;
-            });
+        uniqueUserPostComments.forEach(post => {
+            post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
+            post.comments = undefined;
+        });
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
         res.status(200).json({
@@ -305,14 +305,14 @@ userController.forgetPassword = async (req, res) => {
 
         let findUser;
 
-        if(nickName) {
+        if (nickName) {
             findUser = await User.find({ nickName });
         }
-        if(email) {
+        if (email) {
             findUser = await User.find({ email });
         }
 
-        if(!findUser) {
+        if (!findUser) {
             throw new Error(`해당 유저가 존재하지 않습니다`)
         }
 

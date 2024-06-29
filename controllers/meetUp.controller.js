@@ -54,6 +54,9 @@ meetUpController.createMeetUp = async (req, res) => {
             participants: newMeetUp.participants,
         });
 
+        const user = await User.findById(userId);
+        await user.addActivity(userId);
+
         res.status(200).json({ status: "success", data: { newMeetUp } });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
@@ -178,6 +181,7 @@ meetUpController.getAllMeetUp = async (req, res) => {
 
 meetUpController.deleteMeetUp = async (req, res) => {
     try {
+        const { userId } = req;
         const { id } = req.params;
         const meetUp = await MeetUp.findById(id);
 
@@ -186,6 +190,10 @@ meetUpController.deleteMeetUp = async (req, res) => {
         meetUp.isDelete = true;
 
         await meetUp.save();
+
+        const user = await User.findById(userId);
+        await user.substractActivity(userId);
+
         chatController.deleteChatRoom({ roomId: id });
         res.status(200).json({ status: "success" });
     } catch (error) {
