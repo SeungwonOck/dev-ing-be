@@ -311,12 +311,12 @@ userController.unfollowUser = async (req, res) => {
 
 userController.forgetPassword = async (req, res) => {
     try {
-        const { nickName, email } = req.body;
+        const { nickName, userName, email } = req.body;
 
         let findUser;
 
-        if (nickName) {
-            findUser = await User.find({ nickName });
+        if(nickName && userName) {
+            findUser = await User.find({ nickName, userName });
         }
         if (email) {
             findUser = await User.find({ email });
@@ -329,6 +329,29 @@ userController.forgetPassword = async (req, res) => {
         console.log(findUser)
 
         res.status(200).json({ status: "success", data: { findUser } })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
+
+userController.resetPassword = async (req, res) => {
+    try {
+        const { userId, password } = req.body;
+
+        const findUser = await User.findById(userId);
+        if(findUser.googleUser) {
+            throw new Error(`구글로 로그인한 계정은 비밀번호를 설정할 수 없습니다`)
+        }
+
+        if (password) {
+            const salt = bcrypt.genSaltSync(10);
+            const hash = await bcrypt.hash(password, salt);
+            findUser.password = hash;
+        }
+
+        await findUser.save();
+
+        res.status(200).json({ status: "success", message: '비밀번호가 변경되었습니다' })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }
