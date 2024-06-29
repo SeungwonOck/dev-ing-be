@@ -220,10 +220,19 @@ userController.getUserByNickName = async (req, res) => {
             .sort({ createAt: -1 })
             .lean();
 
-        uniqueUserPostComments.forEach(post => {
-            post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
-            post.comments = undefined;
-        });
+            uniqueUserPostComments.forEach(post => {
+                post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
+                post.comments = undefined;
+            });
+        
+        const uniqueUserQnaComments = await QnA.find({ 'answers.author': uniqueUser._id, isDelete: false })
+            .populate('author', '_id nickName profileImage createAt')
+            .sort({ createAt: -1 })
+            .lean()
+
+            uniqueUserQnaComments.forEach(qna => {
+                qna.userComments = qna.answers.filter(answer => !answer.isDelete && answer.author.toString() === uniqueUser._id.toString());
+            });
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
         res.status(200).json({
@@ -236,6 +245,7 @@ userController.getUserByNickName = async (req, res) => {
                 uniqueUserScrap,
                 uniqueUserLikes,
                 uniqueUserPostComments,
+                uniqueUserQnaComments,
                 following,
                 followers
             }
