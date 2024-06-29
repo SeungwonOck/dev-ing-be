@@ -23,6 +23,7 @@ qnaController.createQnA = async (req, res) => {
         await newQnA.save();
 
         const user = await User.findById(userId);
+        console.log(userId);
         await user.addActivity(userId);
 
         res.status(200).json({ status: "success", data: { newQnA } });
