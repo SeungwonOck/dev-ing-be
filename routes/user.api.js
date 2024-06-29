@@ -13,5 +13,6 @@ router.post("/me/:nickName/unfollow", authController.authenticate, userControlle
 router.get("/:id", userController.getUserInfo);
 router.put("/", authController.authenticate, userController.updateUser);
 router.put("/google", authController.authenticate, userController.updateGoogleUser);
+router.post("/forgetpassword", userController.forgetPassword);
 
 module.exports = router;
