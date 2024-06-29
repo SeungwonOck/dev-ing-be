@@ -301,12 +301,12 @@ userController.unfollowUser = async (req, res) => {
 
 userController.forgetPassword = async (req, res) => {
     try {
-        const { nickName, email } = req.body;
+        const { nickName, userName, email } = req.body;
 
         let findUser;
 
-        if(nickName) {
-            findUser = await User.find({ nickName });
+        if(nickName && userName) {
+            findUser = await User.find({ nickName, userName });
         }
         if(email) {
             findUser = await User.find({ email });
