@@ -12,5 +12,6 @@ router.post("/me/:nickName/follow", authController.authenticate, userController.
 router.post("/me/:nickName/unfollow", authController.authenticate, userController.unfollowUser);
 router.get("/:id", userController.getUserInfo);
 router.put("/", authController.authenticate, userController.updateUser);
+router.put("/google", authController.authenticate, userController.updateGoogleUser);
 
 module.exports = router;

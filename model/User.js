@@ -56,6 +56,8 @@ const userSchema = Schema({
     report: { type: Number, default: 0 },
     createAt: { type: Date, default: Date.now },
     scrap: [scrapSchema],
+    isNicknameAndGenderChange: { type: Boolean, default: false },
+    googleUser: { type: Boolean, default: false }
 });
 
 userSchema.methods.toJSON = function () {

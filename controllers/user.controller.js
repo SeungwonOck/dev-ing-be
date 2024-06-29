@@ -78,7 +78,7 @@ userController.getAllUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
     try {
         const { userId } = req;
-        const { userName, stacks, originalPassword, newPassword, profileImage, description } = req.body;
+        const { userName, stacks, originalPassword, newPassword, profileImage, description, nickName, gender } = req.body;
         const user = await User.findById(userId);
 
         if (!originalPassword) {
@@ -120,6 +120,45 @@ userController.updateUser = async (req, res) => {
     }
 };
 
+userController.updateGoogleUser = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { userName, stacks, profileImage, description, nickName, gender } = req.body;
+        const user = await User.findById(userId);
+
+        //닉네임 중복 확인
+        if (user.nickName !== nickName) {
+            const existingNickName = await User.findOne({ nickName });
+            if (existingNickName) {
+                throw new Error("이미 존재하는 닉네임입니다");
+            }
+        }
+
+        if (!userName || userName === "") {
+            throw new Error("이름을 입력해주세요.");
+        }
+
+        if (stacks.length !== 0) {
+            user.stacks = stacks;
+        } else {
+            user.stacks = ['none'];
+        }
+
+        user.userName = userName;
+        user.profileImage = profileImage;
+        user.description = description;
+        user.gender = gender;
+        user.nickName = nickName;
+        user.isNicknameAndGenderChange = true;
+
+        await user.save();
+
+        res.status(200).json({ status: "success", data: { user } });
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message });
+    }
+};
+
 userController.getUserInfo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -141,7 +180,7 @@ userController.blockUser = async (req, res) => {
 
         console.log(user)
 
-        if(user.level === 'admin') {
+        if (user.level === 'admin') {
             throw new Error("관리자는 삭제할 수 없습니다");
         }
 
@@ -152,8 +191,8 @@ userController.blockUser = async (req, res) => {
 
         await user.save();
 
-        res.status(200).json({ 
-            status: "success", 
+        res.status(200).json({
+            status: "success",
             message: userBlockState ? '사용자의 활동이 제한되었습니다' : '사용자의 활동 제한이 풀렸습니다'
         });
     } catch (error) {
@@ -172,7 +211,7 @@ userController.getUserByNickName = async (req, res) => {
         const scrapedPostIds = uniqueUser.scrap.map(scrapItem => scrapItem.post);
         const uniqueUserScrap = await Post.find({ _id: { $in: scrapedPostIds }});
         const uniqueUserMeetUp = await MeetUp.find({ organizer: uniqueUser._id, isDelete: false })
-        const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false})
+        const uniqueUserQna = await QnA.find({ author: uniqueUser._id, isDelete: false })
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
         res.status(200).json({

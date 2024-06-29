@@ -61,7 +61,8 @@ authController.loginWithGoogle = async (req, res) => {
                 email,
                 password: newPassword,
                 gender: "none",
-                nickName: generateRandomNickname()
+                nickName: generateRandomNickname(),
+                googleUser: true
             })
             await user.save();
         }
