@@ -9,7 +9,7 @@ router.get("/all", meetUpController.getAllMeetUp);
 router.get("/:id", meetUpController.getMeetUp);
 router.post("/", authController.authenticate, meetUpController.createMeetUp);
 router.put("/:id", meetUpController.updateMeetUp);
-router.delete("/:id", meetUpController.deleteMeetUp);
+router.delete("/:id", authController.authenticate, meetUpController.deleteMeetUp);
 router.put("/block/:id", authController.authenticate, authController.checkAdminPermission, meetUpController.blockMeetUp);
 
 //참여 관련 라우터
