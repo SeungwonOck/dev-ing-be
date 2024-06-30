@@ -3,7 +3,6 @@ const ChatRoom = require("../model/ChatRoom");
 
 chatController.createChatRoom = async ({ roomId, participants }) => {
     try {
-        console.log(roomId, participants);
 
         if (!roomId || !participants || participants.length === 0) {
             throw new Error("roomId 또는 participants가 유효하지 않습니다");
@@ -109,7 +108,6 @@ chatController.saveChatMessage = async ({
 
 chatController.addParticipants = async ({ userId, roomId }) => {
     try {
-        console.log(userId, roomId);
         const chatRoom = await ChatRoom.findOne({ roomId });
 
         if (!chatRoom) {
@@ -145,14 +143,14 @@ chatController.removeParticipant = async ({ userId, roomId }) => {
             return participant !== null && participant.toString() !== userId;
         });
 
-        const message = {
-            userName: "시스템",
-            message: `사용자 ${userId}가 방을 나갔습니다.`,
-            roomId: roomId,
-        };
+        // const message = {
+        //     userName: "시스템",
+        //     message: `사용자 ${userId}가 방을 나갔습니다.`,
+        //     roomId: roomId,
+        // };
 
-        // 채팅 메시지 저장 및 브로드캐스트
-        await chatController.saveChatMessage(message);
+        // // 채팅 메시지 저장 및 브로드캐스트
+        // await chatController.saveChatMessage(message);
 
         return chatRoom;
     } catch (error) {
