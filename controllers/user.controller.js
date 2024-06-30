@@ -224,6 +224,15 @@ userController.getUserByNickName = async (req, res) => {
                 post.userComments = post.comments.filter(comment => !comment.isDelete && comment.author.toString() === uniqueUser._id.toString());
                 post.comments = undefined;
             });
+        
+        const uniqueUserQnaComments = await QnA.find({ 'answers.author': uniqueUser._id, isDelete: false })
+            .populate('author', '_id nickName profileImage createAt')
+            .sort({ createAt: -1 })
+            .lean()
+
+            uniqueUserQnaComments.forEach(qna => {
+                qna.userComments = qna.answers.filter(answer => !answer.isDelete && answer.author.toString() === uniqueUser._id.toString());
+            });
         const following = await User.find({ _id: { $in: uniqueUser.following } });
         const followers = await User.find({ _id: { $in: uniqueUser.followers } });
         res.status(200).json({
@@ -236,6 +245,7 @@ userController.getUserByNickName = async (req, res) => {
                 uniqueUserScrap,
                 uniqueUserLikes,
                 uniqueUserPostComments,
+                uniqueUserQnaComments,
                 following,
                 followers
             }
@@ -301,24 +311,50 @@ userController.unfollowUser = async (req, res) => {
 
 userController.forgetPassword = async (req, res) => {
     try {
-        const { nickName, email } = req.body;
+        const { nickName, userName, email } = req.body;
 
         let findUser;
 
-        if(nickName) {
-            findUser = await User.find({ nickName });
+        if(nickName && userName) {
+            findUser = await User.findOne({ nickName, userName });
         }
-        if(email) {
-            findUser = await User.find({ email });
+        if (email) {
+            findUser = await User.findOne({ email });
         }
 
-        if(!findUser) {
+        if (!findUser) {
             throw new Error(`해당 유저가 존재하지 않습니다`)
         }
 
-        console.log(findUser)
+        if(findUser.googleUser) {
+            throw new Error(`구글로 로그인한 계정은 비밀번호를 설정할 수 없습니다`)
+        }
 
-        res.status(200).json({ status: "success", data: { findUser } })
+        res.status(200).json({ 
+            status: "success", 
+            message: '새로 변경할 비밀번호를 입력해주세요', 
+            data: findUser 
+        })
+    } catch (error) {
+        res.status(400).json({ status: "fail", message: error.message })
+    }
+}
+
+userController.resetPassword = async (req, res) => {
+    try {
+        const { userId, password } = req.body;
+
+        const findUser = await User.findById(userId);
+
+        if (password) {
+            const salt = bcrypt.genSaltSync(10);
+            const hash = await bcrypt.hash(password, salt);
+            findUser.password = hash;
+        }
+
+        await findUser.save();
+
+        res.status(200).json({ status: "success", message: '비밀번호가 변경되었습니다' })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }
