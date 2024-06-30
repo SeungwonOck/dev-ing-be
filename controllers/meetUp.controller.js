@@ -41,7 +41,7 @@ meetUpController.createMeetUp = async (req, res) => {
         const meetUpId = newMeetUp._id.toString();
 
         console.log(
-            "roomId",
+            "roomId",   
             meetUpId,
             "participants: ",
             newMeetUp.participants,
