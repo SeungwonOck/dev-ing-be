@@ -330,7 +330,11 @@ userController.forgetPassword = async (req, res) => {
             throw new Error(`구글로 로그인한 계정은 비밀번호를 설정할 수 없습니다`)
         }
 
-        res.status(200).json({ status: "success", message: '새로 변경할 비밀번호를 입력해주세요', data: { findUser } })
+        res.status(200).json({ 
+            status: "success", 
+            message: '새로 변경할 비밀번호를 입력해주세요', 
+            data: findUser 
+        })
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message })
     }
