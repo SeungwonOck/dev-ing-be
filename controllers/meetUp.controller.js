@@ -134,7 +134,9 @@ meetUpController.getAllMeetUp = async (req, res) => {
         }
 
         if (category) {
-            query.category = { $in: [category] };
+            if (category !== "전체") {
+                query.category = { $in: [category] };
+            }
         }
 
         if (isRecruit === "true") {
