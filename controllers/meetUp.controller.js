@@ -186,14 +186,11 @@ meetUpController.deleteMeetUp = async (req, res) => {
         meetUp.isDelete = true;
 
         await meetUp.save();
-<<<<<<< HEAD
-=======
 
         const user = await User.findById(userId);
         await user.substractActivity(userId);
 
         chatController.deleteChatRoom({ roomId: id });
->>>>>>> 41346e78cd7136d455190174ec128bc7e670d029
         res.status(200).json({ status: "success" });
     } catch (error) {
         res.status(400).json({ status: "fail", message: error.message });
