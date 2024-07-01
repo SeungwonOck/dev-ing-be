@@ -11,6 +11,7 @@ require("dotenv").config();
 
 const server = http.createServer(app);
 const io = socketIo(server, {
+    path: '/socket.io',
     cors: {
         origin: "https://deving.netlify.app",
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
