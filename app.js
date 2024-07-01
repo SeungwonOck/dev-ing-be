@@ -18,7 +18,7 @@ const io = socketIo(server, {
         allowedHeaders: ["Content-Type"],
         credentials: true,
     },
-    transports: ['websocket', 'polling'],
+    // transports: ['websocket', 'polling'],
 });
 
 app.use(cors({
