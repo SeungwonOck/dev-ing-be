@@ -44,6 +44,7 @@ io.on("connection", async (socket) => {
 
     socket.on("join room", (roomId) => {
         socket.join(roomId);
+        console.log(roomId)
     });
 
     socket.on("disconnect", () => {
