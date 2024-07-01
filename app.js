@@ -12,26 +12,18 @@ require("dotenv").config();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*", // 모든 출처에서의 요청을 허용. 필요에 따라 특정 출처로 제한할 수 있습니다.
-        methods: ["GET", "POST"],
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type"],
-        credentials: true
+        credentials: true,
     }
 });
 
-// 특정 도메인만 허용
-const allowedOrigins = ["https://deving.netlify.app", "https://main--deving.netlify.app"];
 app.use(cors({
-    origin: function(origin, callback){
-        // 허용된 오리진 목록에 포함되었는지 확인
-        if(!origin) return callback(null, true);
-        if(allowedOrigins.indexOf(origin) === -1){
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true,
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -41,7 +33,7 @@ const mongoURI = process.env.MONGODB_URI_PROD;
 const PORT = process.env.PORT || 5000;
 
 mongoose
-    .connect(mongoURI)
+    .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log("mongoose connected"))
     .catch((error) => console.log("DB connection failed", error));
 
