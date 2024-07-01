@@ -16,7 +16,8 @@ const io = socketIo(server, {
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type"],
         credentials: true,
-    }
+    },
+    transports: ['websocket', 'polling'],
 });
 
 app.use(cors({
