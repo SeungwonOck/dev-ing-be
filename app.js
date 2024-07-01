@@ -42,6 +42,8 @@ app.use("/api", indexRouter);
 io.on("connection", async (socket) => {
     // 소켓 커넥션이 성공적으로 이루어졌을 때 실행되는 이벤트 처리
 
+    console.log('소켓', socket)
+
     socket.on("join room", (roomId) => {
         socket.join(roomId);
         console.log(roomId)
