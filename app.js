@@ -12,7 +12,7 @@ require("dotenv").config();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*",
+        origin: "https://deving.netlify.app",
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type"],
         credentials: true,
@@ -42,7 +42,7 @@ app.use("/api", indexRouter);
 io.on("connection", async (socket) => {
     // 소켓 커넥션이 성공적으로 이루어졌을 때 실행되는 이벤트 처리
 
-    console.log('소켓', socket)
+    console.log('connection success', socket)
 
     socket.on("join room", (roomId) => {
         socket.join(roomId);
