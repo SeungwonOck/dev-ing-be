@@ -59,6 +59,10 @@ const userSchema = Schema({
     isNicknameAndGenderChange: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },
     acitivity: { type: Number, default: 0 },
+    online: {
+        socketId: String,
+        online: { type: Boolean, default: false }
+    }
 });
 
 userSchema.methods.toJSON = function () {
