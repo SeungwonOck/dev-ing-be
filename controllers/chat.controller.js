@@ -42,7 +42,7 @@ chatController.getChatRoomList = async (req, res) => {
 
         chatRooms = await Promise.all(
             chatRooms.map(async (chatRoom) => {
-                await chatRoom.populate({ path: "roomId", select: "title category" });
+                await chatRoom.populate({ path: "roomId", select: "title category image" });
                 // await chatRoom.populate({ path: "organizer", select: "_id" });
                 await chatRoom.populate({
                     path: "participants",
@@ -152,7 +152,7 @@ chatController.removeParticipant = async ({ userId, roomId }) => {
         // // 채팅 메시지 저장 및 브로드캐스트
         // await chatController.saveChatMessage(message);
 
-        return chatRoom;
+        await chatRoom.save();
     } catch (error) {
         console.error("참가자 제거 오류:", error.message);
         throw error;
