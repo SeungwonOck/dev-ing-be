@@ -2,7 +2,6 @@ const { createServer } = require("http");
 const app = require("./app");
 const { Server } = require("socket.io");
 require("dotenv").config();
-const cors = require("cors");
 
 const SOCKET_PORT = process.env.SOCKET_PORT || 5001; // 기본값을 설정할 수 있습니다.
 const httpServer = createServer(app);
